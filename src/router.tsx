@@ -4,6 +4,7 @@ import LoginPage from '@/pages/login/Login';
 import HomePage from '@/pages/home/Home.tsx';
 import AppLayout from '@/components/layouts/AppLayout';
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const router = createBrowserRouter([
 	{
 		path: '/',

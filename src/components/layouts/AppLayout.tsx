@@ -1,11 +1,12 @@
+import logo from '@/assets/logo.svg';
 import { Outlet } from 'react-router-dom';
 
 export default function AppLayout() {
 	return (
 		<div className="min-h-screen flex flex-col">
-			<header className="bg-black text-white p-4">
+			<header className="bg-transparent p-4">
 				<div className="container mx-auto">
-					<h1 className="text-xl font-bold">My App</h1>
+					<img src={logo} alt="Logo" />
 				</div>
 			</header>
 
