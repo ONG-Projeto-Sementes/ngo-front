@@ -10,9 +10,11 @@ import { Button } from '@/components/ui/button';
 import { useMutation } from '@tanstack/react-query';
 import InputField from '@/components/InputField/InputField';
 
+import { useNavigate, useLocation } from 'react-router-dom';
+
 const loginSchema = z.object({
-	login: z.string().min(4, 'O login deve ter pelo menos 4 caracteres'),
-	password: z.string().min(4, 'A senha deve ter pelo menos 4 caracteres'),
+	email: z.string().email('Digite um e-mail válido'),
+	password: z.string().min(3, 'A senha deve ter pelo menos 3 caracteres'),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -21,10 +23,14 @@ export default function LoginPage() {
 	const form = useForm<LoginFormData>({
 		resolver: zodResolver(loginSchema),
 		defaultValues: {
-			login: '',
+			email: '',
 			password: '',
 		},
 	});
+
+	const navigate = useNavigate();
+	const location = useLocation();
+	const fromPath = location.state?.from?.pathname || '/';
 
 	function onSubmit(values: LoginFormData) {
 		mutate(values);
@@ -32,9 +38,9 @@ export default function LoginPage() {
 
 	const { mutate, isPending } = useMutation({
 		mutationFn: (data: LoginFormData) => signIn(data),
-		onSuccess: (data) => {
+		onSuccess: () => {
 			toast.success('Login realizado com sucesso!');
-			console.log(data);
+			navigate(fromPath, { replace: true });
 		},
 		onError: (error) => {
 			toast.error(`Falha no login. ${error}.`);
@@ -50,16 +56,16 @@ export default function LoginPage() {
 			</header>
 
 			<main className="flex-1 flex flex-col items-center justify-center max-h-screen container mx-auto p-4 text-center">
-				<h3 className="text-xl font-semibold mb-2">Olá, bem‑vindo ao Projeto Sementes</h3>
+				<h3 className="text-xl font-semibold mb-2">Olá, bem-vindo ao Projeto Sementes</h3>
 				<p className="text-sm text-muted-foreground mb-4">Por favor, faça login para continuar.</p>
 
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full max-w-xs md:max-w-sm my-4">
 						<InputField
 							control={form.control}
-							name="login"
+							name="email"
 							type="text"
-							placeholder="Digite seu login"
+							placeholder="Digite seu e-mail"
 							disabled={isPending}
 						/>
 

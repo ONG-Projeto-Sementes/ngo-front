@@ -1,29 +1,19 @@
 import axios from 'axios';
 
 export const api = axios.create({
-	baseURL: import.meta.env.VITE_API_BASE_URL || 'https://api.exemplo.com',
+	baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080',
 	headers: {
 		'Content-Type': 'application/json',
 	},
 	timeout: 5000,
+	withCredentials: true,
 });
 
-// Interceptor de request inserir token ou outro header
-api.interceptors.request.use((config) => {
-	const token = localStorage.getItem('authToken');
-	if (token) {
-		config.headers.Authorization = `Bearer ${token}`;
-	}
-	return config;
-});
-
-// Interceptor de response tratar erros
-// TODO: Implementar logica de tratamento de error para enviar para toast esse local serve somente para tratar o erro nada muito complexo
 api.interceptors.response.use(
 	(response) => response,
 	(error) => {
-		if (error.response?.status === 401) {
-			// logout logic...
+		if (error.response?.status === 401 || error.response?.status === 403) {
+			window.dispatchEvent(new Event('unauthorized'));
 		}
 		return Promise.reject(error);
 	}

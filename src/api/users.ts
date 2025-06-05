@@ -1,24 +1,28 @@
-// src/api/user.ts
-import type { AxiosError } from 'axios';
 import { api } from './axios';
+import type { AxiosError } from 'axios';
 
 export interface SignInPayload {
-	login: string;
+	email: string;
 	password: string;
 }
 
 export interface SignInResponse {
-	token: string;
-	user: {
-		id: string;
-		login: string;
-		email: string;
+	authentication: {
+		password: string;
+		salt: string;
+		sessionToken: string;
 	};
+	_id: string;
+	username: string;
+	email: string;
+	createdAt: string;
+	updatedAt: string;
+	__v: number;
 }
 
 export async function signIn(payload: SignInPayload): Promise<SignInResponse> {
 	try {
-		const response = await api.post<SignInResponse>('/users/signin', payload);
+		const response = await api.post<SignInResponse>('/auth/login', payload);
 		return response.data;
 	} catch (err) {
 		const error = err as AxiosError;
