@@ -63,7 +63,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	}
 
 	async function logout() {
-		console.log('[AuthProvider] logout() chamado');
 		try {
 			await api.post('/auth/logout');
 		} catch {

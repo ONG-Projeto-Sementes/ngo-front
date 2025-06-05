@@ -1,10 +1,13 @@
+import { Button } from '../../components/ui/button';
+import { useAuth } from '../../context/AuthContext';
+
 export default function HomePage() {
+	const { logout } = useAuth();
+
 	return (
-		<div>
-			<h2 className="text-white text-2xl font-semibold">Welcome to the Home Page</h2>
-			<p className="mt-2 text-gray-600">This page uses the AppLayout with navbar.</p>
-			<p className="mt-2 text-gray-600">Test deploy CI/CD</p>
-			<button className="hover:bg-blue-600 text-white rounded p-2 bg-blue-500">Test</button>
+		<div className="flex flex-col items-center justify-center h-screen">
+			<h4>Botão teste de sair</h4>
+			<Button onClick={() => logout()}>Sair</Button>
 		</div>
 	);
 }
