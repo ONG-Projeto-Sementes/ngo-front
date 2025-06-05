@@ -1,19 +1,11 @@
 import { useState } from 'react';
 import { cn } from '../../lib/utils';
+import type { InputFieldProps } from '.';
 import { Eye, EyeOff } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import type { Control, FieldPath, FieldValues } from 'react-hook-form';
+import type { FieldValues } from 'react-hook-form';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-
-interface InputFieldProps<T extends FieldValues> {
-	type?: string;
-	label?: string;
-	disabled?: boolean;
-	name: FieldPath<T>;
-	control: Control<T>;
-	placeholder?: string;
-}
 
 export default function InputField<T extends FieldValues>({
 	name,
