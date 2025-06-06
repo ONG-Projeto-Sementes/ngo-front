@@ -1,44 +1,39 @@
-import HomePage from './pages/home/Home';
 import LoginPage from './pages/login/Login';
-import { Route, Routes } from 'react-router-dom';
+import InicioPage from './pages/inicio/Inicio';
+import { Routes, Route } from 'react-router-dom';
+import AppLayout from './components/layouts/AppLayout';
 import NotFoundPage from './pages/NotFoundPage/NotFoundPage';
 import DashboardPage from './pages/DashboardPage/DashboardPage';
 import { PublicRoute } from './components/PublicRoute/PublicRoute';
 import { RequireAuth } from './components/RequireAuth/RequireAuth';
 
 export default function AppRouter() {
-	return (
-		<Routes>
-			{/* Rotas públicas */}
-			<Route
-				path="/login"
-				element={
-					<PublicRoute>
-						<LoginPage />
-					</PublicRoute>
-				}
-			/>
+  return (
+    <Routes>
+      {/* Rota pública */}
+      <Route
+        path="/login"
+        element={
+          <PublicRoute>
+            <LoginPage />
+          </PublicRoute>
+        }
+      />
 
-			{/* Rotas protegidas */}
-			<Route
-				path="/"
-				element={
-					<RequireAuth>
-						<HomePage />
-					</RequireAuth>
-				}
-			/>
-			<Route
-				path="/dashboard"
-				element={
-					<RequireAuth>
-						<DashboardPage />
-					</RequireAuth>
-				}
-			/>
+      {/* Todas as rotas privadas */}
+      <Route
+        element={
+          <RequireAuth>
+            <AppLayout />
+          </RequireAuth>
+        }
+      >
+        <Route path="/inicio" element={<InicioPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+      </Route>
 
-			{/* Catch‑all 404 */}
-			<Route path="*" element={<NotFoundPage />} />
-		</Routes>
-	);
+      {/* Catch-all 404 */}
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
+  );
 }

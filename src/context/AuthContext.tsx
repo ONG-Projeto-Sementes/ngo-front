@@ -31,9 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	useEffect(() => {
 		async function checkAuth() {
 			try {
-				console.log('[AuthProvider] chamando GET /auth/isAuthenticated');
 				const response = await api.get<User>('/auth/isAuthenticated');
-				console.log('[AuthProvider] resposta de isAuthenticated:', response.data);
 				setUser(response.data);
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			} catch (err: unknown) {
@@ -56,7 +54,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	}, [navigate]);
 
 	async function login(payload: SignInPayload) {
-		console.log('[AuthProvider] login() chamado com payload:', payload);
 		const data: SignInResponse = await signIn(payload);
 		const { _id, username, email } = data;
 		setUser({ _id, username, email });
