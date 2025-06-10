@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { post, type RequestError } from '../../helpers/request';
+import { createApiClient } from '@/helpers/request.ts';
+import type { RequestError } from '@/services/auth/authentication.ts';
 
 export interface RegisterRequest {
 	email: string;
@@ -30,7 +31,8 @@ export interface ValidationErrorPayload {
 
 export async function register(data: RegisterRequest): Promise<RegisterResponse> {
 	try {
-		return await post<RegisterResponse, RegisterRequest>('auth/register', data);
+		const apiInstance = createApiClient();
+		return await apiInstance.post<RegisterResponse, RegisterRequest>('auth/register', data);
 	} catch (err) {
 		const axiosErr = err as RequestError<ValidationErrorPayload>;
 		if (axios.isAxiosError(axiosErr) && axiosErr.response?.data?.name === 'ValidationError') {

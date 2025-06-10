@@ -7,6 +7,8 @@ import { useAuth } from '@/context/AuthContext';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import InputField from '@/components/InputField/InputField';
+import useMutation from '@/hooks/useMutation.tsx';
+import login from '@/services/auth/login.ts';
 
 const loginSchema = z.object({
 	email: z.string().email('Digite um e-mail válido'),
@@ -15,22 +17,31 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function Login() {
-	const { login } = useAuth();
+	const { login: loginContext } = useAuth();
+
 	const navigate = useNavigate();
+
 	const form = useForm<LoginFormData>({
 		resolver: zodResolver(loginSchema),
 		defaultValues: { email: '', password: '' },
 	});
 
-	async function onSubmit(values: LoginFormData) {
-		try {
-			await login(values);
+	const mutation = useMutation(login, {
+		onSuccess: (data) => {
+			loginContext({ email: data.email, password: data.password });
+
 			toast.success('Login realizado com sucesso!');
+
 			navigate('/inicio', { replace: true });
-		} catch (err: any) {
-			toast.error(`Falha no login. ${err.message}`);
-		}
-	}
+		},
+		onError: (error) => {
+			toast.error(error instanceof Error ? error.message : 'Erro desconhecido no login.');
+		},
+	});
+
+	const onSubmit = (data: LoginFormData) => {
+		mutation.mutate(data);
+	};
 
 	return (
 		<div className="min-h-screen flex flex-col">
@@ -51,7 +62,7 @@ export default function Login() {
 					>
 						<InputField control={form.control} name="email" type="text" placeholder="Digite seu e-mail" />
 						<InputField control={form.control} name="password" type="password" placeholder="Digite sua senha" />
-						<Button type="submit" className="w-full">
+						<Button type="submit" className="w-full" isLoading={mutation.isPending} disabled={mutation.isPending}>
 							Entrar
 						</Button>
 					</form>
