@@ -88,7 +88,7 @@ export default function AppLayout() {
 			<header className="bg-white">
 				<div className="container mx-auto flex items-center justify-start gap-0 lg:gap-8 px-4 py-3">
 					<Link to="/inicio" className="flex items-center min-w-[100px] md:min-w-[110px] lg:min-w-auto">
-						<img src="/logo.svg" alt="Logo" className="h-8 w-auto" />
+						<img src="/svg/logo.svg" alt="Logo" className="h-8 w-auto" />
 					</Link>
 
 					<nav className="hidden sm:flex sm:items-center gap-0 lg:gap-6">
