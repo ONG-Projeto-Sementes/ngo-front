@@ -1,7 +1,9 @@
-import { api } from '../api/axios';
 import { useNavigate } from 'react-router-dom';
-import { signIn, type SignInPayload, type SignInResponse } from '../api/users';
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+
+import logoutService from '../services/auth/logout';
+import login, { type LoginRequest, type LoginResponse } from '../services/auth/login';
+import { isAuthenticated, type AuthenticatedUser } from '../services/auth/authentication';
 
 interface User {
 	_id: string;
@@ -12,7 +14,7 @@ interface User {
 interface AuthContextType {
 	user: User | null;
 	loading: boolean;
-	login: (payload: SignInPayload) => Promise<void>;
+	login: (payload: LoginRequest) => Promise<void>;
 	logout: () => Promise<void>;
 }
 
@@ -30,50 +32,66 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 	useEffect(() => {
 		async function checkAuth() {
+			setLoading(true);
+
 			try {
-				const response = await api.get<User>('/auth/isAuthenticated');
-				setUser(response.data);
-				// eslint-disable-next-line @typescript-eslint/no-unused-vars
-			} catch (err: unknown) {
+				const session: AuthenticatedUser = await isAuthenticated();
+				setUser({
+					_id: session._id,
+					username: session.username,
+					email: session.email,
+				});
+				navigate('/login', { replace: true });
+			} catch (err) {
 				setUser(null);
+				navigate('/login', { replace: true });
 			} finally {
 				setLoading(false);
 			}
 		}
+
 		checkAuth();
-
-		function handleUnauthorized() {
-			setUser(null);
-			navigate('/login', { replace: true });
-		}
-		window.addEventListener('unauthorized', handleUnauthorized);
-
-		return () => {
-			window.removeEventListener('unauthorized', handleUnauthorized);
-		};
 	}, [navigate]);
 
-	async function login(payload: SignInPayload) {
-		const data: SignInResponse = await signIn(payload);
-		const { _id, username, email } = data;
-		setUser({ _id, username, email });
+	async function loginUser(payload: LoginRequest) {
+		try {
+			const res: LoginResponse = await login(payload);
+
+			setUser({
+				_id: res._id,
+				username: res.username,
+				email: res.email,
+			});
+			navigate('/inicio', { replace: true });
+		} catch (err) {
+			throw err;
+		}
 	}
 
-	async function logout() {
+	async function logoutUser() {
 		try {
-			await api.post('/auth/logout');
-		} catch {
-			// ignore
+			await logoutService();
+		} catch (err) {
 		} finally {
 			setUser(null);
 			navigate('/login', { replace: true });
 		}
 	}
 
-	return <AuthContext.Provider value={{ user, loading, login, logout }}>{children}</AuthContext.Provider>;
+	return (
+		<AuthContext.Provider
+			value={{
+				user,
+				loading,
+				login: loginUser,
+				logout: logoutUser,
+			}}
+		>
+			{children}
+		</AuthContext.Provider>
+	);
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
 	return useContext(AuthContext);
 }
