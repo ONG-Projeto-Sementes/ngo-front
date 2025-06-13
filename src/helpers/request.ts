@@ -1,20 +1,36 @@
-import * as process from 'node:process';
 import axios from 'axios';
-import type { RegisterRequest } from '@/services/auth/register.ts';
 import type { AxiosInstance, AxiosResponse, AxiosRequestConfig, AxiosError } from 'axios';
 
-
 export interface ICreateApiClient {
-	get<TResponse>(url: string, config?: AxiosRequestConfig): Promise<TResponse>;
+	get<TResponse>(
+		url: string,
+		config?: AxiosRequestConfig,
+	): Promise<TResponse>;
 
-	post<TResponse, TRequest = unknown>(url: string, config?: RegisterRequest): Promise<TResponse>;
+	post<TResponse, TRequest = unknown>(
+		url: string,
+		body?: TRequest,
+		config?: AxiosRequestConfig,
+	): Promise<TResponse>;
 
-	put<TResponse, TRequest = unknown>(url: string, body: TRequest, config?: AxiosRequestConfig): Promise<TResponse>;
+	put<TResponse, TRequest = unknown>(
+		url: string,
+		body: TRequest,
+		config?: AxiosRequestConfig,
+	): Promise<TResponse>;
 
-	patch<TResponse, TRequest = unknown>(url: string, body: TRequest, config?: AxiosRequestConfig): Promise<TResponse>;
+	patch<TResponse, TRequest = unknown>(
+		url: string,
+		body: TRequest,
+		config?: AxiosRequestConfig,
+	): Promise<TResponse>;
 
-	delete<TResponse>(url: string, config?: AxiosRequestConfig): Promise<TResponse>;
+	delete<TResponse>(
+		url: string,
+		config?: AxiosRequestConfig,
+	): Promise<TResponse>;
 }
+
 
 export function createApiClient(): ICreateApiClient {
 

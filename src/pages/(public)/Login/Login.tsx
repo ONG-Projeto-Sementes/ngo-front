@@ -1,7 +1,7 @@
 import { Form } from '@/components/ui/form.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import InputField from '@/components/InputField/InputField.tsx';
-import useLoginFunctions from '@/pages/Authentication/_hooks/useLoginFunctions.ts';
+import useLoginFunctions from '@/pages/(public)/Login/_hooks/useLoginFunctions.ts';
 
 export default function Login() {
 	const { form, isLoading, onSubmit } = useLoginFunctions();

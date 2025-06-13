@@ -18,7 +18,7 @@ export type RequestError<T = Error | null> = AxiosError<T>;
 export async function isAuthenticated(): Promise<AuthenticatedUser> {
 	try {
 		const apiInstance = createApiClient();
-		return await apiInstance.get<AuthenticatedUser>('auth/isAuthenticated');
+		return await apiInstance.get<AuthenticatedUser>('/auth/isAuthenticated');
 	} catch (err) {
 		const axiosErr = err as RequestError<UnauthenticatedError>;
 

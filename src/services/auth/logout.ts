@@ -10,7 +10,7 @@ export interface UnauthenticatedError {
 export async function logout(): Promise<null> {
 	try {
 		const apiInstance = createApiClient();
-		return await apiInstance.post<null, void>('auth/logout');
+		return await apiInstance.post<null, void>('/auth/logout');
 	} catch (err) {
 		const axiosErr = err as RequestError<UnauthenticatedError>;
 		if (axios.isAxiosError(axiosErr) && axiosErr.response?.data?.name === 'unauthenticated') {

@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 
 import logoutService from '../services/auth/logout';
@@ -21,14 +21,19 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
 	user: null,
 	loading: true,
-	login: async () => {},
-	logout: async () => {},
+	login: async () => {
+	},
+	logout: async () => {
+	},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
 	const [user, setUser] = useState<User | null>(null);
 	const [loading, setLoading] = useState(true);
 	const navigate = useNavigate();
+	const location = useLocation();
+	const pathname = location.pathname;
+
 
 	useEffect(() => {
 		async function checkAuth() {
@@ -41,10 +46,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 					username: session.username,
 					email: session.email,
 				});
-				navigate('/login', { replace: true });
+				if (pathname === '/login' || pathname === '/register') {
+					navigate('/inicio', { replace: true });
+				}
 			} catch (err) {
 				setUser(null);
-				navigate('/login', { replace: true });
+
+				const privateRoutes = ['/inicio', '/dashboard', '/perfil'];
+				if (privateRoutes.includes(pathname)) {
+					navigate('/login', { replace: true });
+				}
 			} finally {
 				setLoading(false);
 			}

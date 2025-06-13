@@ -32,8 +32,12 @@ export interface InvalidCredentialsError {
 
 export async function login(credentials: LoginRequest): Promise<LoginResponse> {
 	try {
-		const apiInstance = createApiClient();
-		return await apiInstance.post<LoginResponse, LoginRequest>('auth/login');
+		const api = createApiClient();
+		const data = await api.post<LoginResponse, LoginRequest>(
+			'/auth/login',
+			credentials,
+		);
+		return data;
 	} catch (err) {
 		const axiosErr = err as RequestError<InvalidCredentialsError>;
 		if (axios.isAxiosError(axiosErr) && axiosErr.response?.data?.name === 'invalid_credentials') {
