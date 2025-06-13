@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { createApiClient } from '@/helpers/request.ts';
+import apiClient from '@/helpers/request.ts';
 
 
 export interface AuthenticatedUser {
@@ -17,8 +17,7 @@ export type RequestError<T = Error | null> = AxiosError<T>;
 
 export async function isAuthenticated(): Promise<AuthenticatedUser> {
 	try {
-		const apiInstance = createApiClient();
-		return await apiInstance.get<AuthenticatedUser>('/auth/isAuthenticated');
+		return apiClient.get<AuthenticatedUser>('/auth/isAuthenticated');
 	} catch (err) {
 		const axiosErr = err as RequestError<UnauthenticatedError>;
 
