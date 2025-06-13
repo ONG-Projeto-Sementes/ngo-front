@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { post, type RequestError } from '../../helpers/request';
+import { createApiClient } from '@/helpers/request.ts';
+import type { RequestError } from '@/services/auth/authentication.ts';
 
 export interface UnauthenticatedError {
 	name: 'unauthenticated';
@@ -8,7 +9,8 @@ export interface UnauthenticatedError {
 
 export async function logout(): Promise<null> {
 	try {
-		return await post<null, void>('auth/logout');
+		const apiInstance = createApiClient();
+		return await apiInstance.post<null, void>('auth/logout');
 	} catch (err) {
 		const axiosErr = err as RequestError<UnauthenticatedError>;
 		if (axios.isAxiosError(axiosErr) && axiosErr.response?.data?.name === 'unauthenticated') {

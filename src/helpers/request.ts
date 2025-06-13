@@ -1,44 +1,83 @@
-import axios, { AxiosError, type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios';
+import * as process from 'node:process';
+import axios from 'axios';
+import type { RegisterRequest } from '@/services/auth/register.ts';
+import type { AxiosInstance, AxiosResponse, AxiosRequestConfig, AxiosError } from 'axios';
 
-const BASE_URL: string =
-	(typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL) ||
-	(process.env.REACT_APP_API_BASE_URL as string) ||
-	'http://localhost:8080';
 
-const api: AxiosInstance = axios.create({
-	baseURL: BASE_URL,
-	headers: { 'Content-Type': 'application/json' },
-	timeout: 15_000,
-});
+export interface ICreateApiClient {
+	get<TResponse>(url: string, config?: AxiosRequestConfig): Promise<TResponse>;
 
-api.interceptors.request.use(
-	(c) => c,
-	(e) => Promise.reject(e)
-);
-api.interceptors.response.use(
-	(r) => r,
-	(e) => Promise.reject(e)
-);
+	post<TResponse, TRequest = unknown>(url: string, config?: RegisterRequest): Promise<TResponse>;
 
-export interface RequestConfig<D = any> extends Omit<AxiosRequestConfig<D>, 'url'> {
-	url: string;
-}
-export type RequestError<T = any> = AxiosError<T>;
+	put<TResponse, TRequest = unknown>(url: string, body: TRequest, config?: AxiosRequestConfig): Promise<TResponse>;
 
-export async function request<T = any, D = any>({ url, ...config }: RequestConfig<D>): Promise<T> {
-	try {
-		const resp = await api.request<T, AxiosResponse<T>, D>({ url, ...config });
-		return resp.data;
-	} catch (err) {
-		if (axios.isAxiosError<T>(err)) throw err as RequestError<T>;
-		throw err;
-	}
+	patch<TResponse, TRequest = unknown>(url: string, body: TRequest, config?: AxiosRequestConfig): Promise<TResponse>;
+
+	delete<TResponse>(url: string, config?: AxiosRequestConfig): Promise<TResponse>;
 }
 
-export const get = <T = any, P = any>(url: string, params?: P) => request<T, P>({ url, method: 'GET', params });
-export const post = <T = any, B = any>(url: string, data?: B) => request<T, B>({ url, method: 'POST', data });
-export const put = <T = any, B = any>(url: string, data?: B) => request<T, B>({ url, method: 'PUT', data });
-export const patch = <T = any, B = any>(url: string, data?: B) => request<T, B>({ url, method: 'PATCH', data });
-export const del = <T = any, P = any>(url: string, params?: P) => request<T, P>({ url, method: 'DELETE', params });
+export function createApiClient(): ICreateApiClient {
 
-export default request;
+	const baseURL = import.meta.env.VITE_API_BASE_URL;
+
+	const client: AxiosInstance = axios.create({
+		baseURL: baseURL || 'http://localhost:8080',
+		withCredentials: true,
+		headers: {
+			'Content-Type': 'application/json',
+		},
+	});
+
+	client.interceptors.request.use(
+		(config) => {
+			return config;
+		},
+		(error) => Promise.reject(error),
+	);
+
+	client.interceptors.response.use(
+		(response: AxiosResponse) => response,
+		(error) => {
+			const customError: AxiosError | undefined = error.response?.data;
+			return Promise.reject(customError ?? error);
+		},
+	);
+
+	return {
+		get: async <TResponse>(url: string, config?: AxiosRequestConfig): Promise<TResponse> => {
+			const resp = await client.get<TResponse>(url, config);
+			return resp.data;
+		},
+		post: async <TResponse, TRequest = unknown>(
+			url: string,
+			body: TRequest,
+			config?: AxiosRequestConfig,
+		): Promise<TResponse> => {
+			const resp = await client.post<TResponse>(url, body, config);
+			return resp.data;
+		},
+		patch: async <TResponse, TRequest = unknown>(
+			url: string,
+			body: TRequest,
+			config?: AxiosRequestConfig,
+		): Promise<TResponse> => {
+			const resp = await client.patch<TResponse>(url, body, config);
+			return resp.data;
+		},
+		put: async <TResponse, TRequest = unknown>(
+			url: string,
+			body: TRequest,
+			config?: AxiosRequestConfig,
+		): Promise<TResponse> => {
+			const resp = await client.put<TResponse>(url, body, config);
+			return resp.data;
+		},
+		delete: async <TResponse>(url: string, config?: AxiosRequestConfig): Promise<TResponse> => {
+			const resp = await client.delete<TResponse>(url, config);
+			return resp.data;
+		},
+	};
+}
+
+const api: ICreateApiClient = createApiClient();
+export default api;
