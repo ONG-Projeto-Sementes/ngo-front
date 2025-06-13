@@ -1,20 +1,19 @@
-import { useAuth } from '@/context/AuthContext.tsx';
-import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import type { LoginFormData } from '@/pages/Authentication/_types';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { loginSchema } from '@/pages/Authentication/_types';
-import useMutation from '@/hooks/useMutation.tsx';
-import login from '@/services/auth/login.ts';
 import { toast } from 'sonner';
+import { useForm, type SubmitHandler } from 'react-hook-form';
+import login from '@/services/auth/login.ts';
+import { useNavigate } from 'react-router-dom';
+import useMutation from '@/hooks/useMutation.tsx';
+import { useAuth } from '@/context/AuthContext.tsx';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { loginSchema } from '@/pages/(public)/Login/_types';
+import type { LoginFormData } from '@/pages/(public)/Login/_types';
 
 export default function useLoginFunctions() {
 	const { login: loginContext } = useAuth();
-
 	const navigate = useNavigate();
 
 	const form = useForm<LoginFormData>({
-		resolver: zodResolver<LoginFormData>(loginSchema),
+		resolver: zodResolver(loginSchema),
 		defaultValues: { email: '', password: '' },
 	});
 
@@ -29,7 +28,7 @@ export default function useLoginFunctions() {
 		},
 	});
 
-	const onSubmit = (data: LoginFormData) => {
+	const onSubmit: SubmitHandler<LoginFormData> = (data) => {
 		mutation.mutate(data);
 	};
 
