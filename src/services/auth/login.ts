@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { createApiClient } from '@/helpers/request.ts';
+import apiClient from '@/helpers/request.ts';
 import type { RequestError } from '@/services/auth/authentication.ts';
 
 export interface LoginRequest {
@@ -32,8 +32,7 @@ export interface InvalidCredentialsError {
 
 export async function login(credentials: LoginRequest): Promise<LoginResponse> {
 	try {
-		const api = createApiClient();
-		const data = await api.post<LoginResponse, LoginRequest>(
+		const data = await apiClient.post<LoginResponse, LoginRequest>(
 			'/auth/login',
 			credentials,
 		);
