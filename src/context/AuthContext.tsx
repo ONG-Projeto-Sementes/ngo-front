@@ -21,10 +21,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
 	user: null,
 	loading: true,
-	login: async () => {
-	},
-	logout: async () => {
-	},
+	login: async () => {},
+	logout: async () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -33,7 +31,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const pathname = location.pathname;
-
 
 	useEffect(() => {
 		async function checkAuth() {

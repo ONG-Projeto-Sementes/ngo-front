@@ -1,37 +1,25 @@
-import {
-    type RefetchOptions,
-    useQuery as reactUseQuery,
-    type RefetchQueryFilters,
-} from "@tanstack/react-query";
+import { useQuery as reactUseQuery, type QueryKey } from '@tanstack/react-query';
 
-function useQuery<R, F>({
-  queryKey,
-  service,
-  autoStart = true,
-  queryHash,
-}: {
-  queryKey?: [keyof F, F[keyof F] | undefined];
-  service: (filters?: F[keyof F]) => Promise<R>;
-  autoStart?: boolean;
-  queryHash?: string;
-}): {
-  isLoading: boolean;
-  data: R | undefined;
-  isSuccess: boolean;
-  isError: boolean;
-  error: any;
-  refetch: (data?: RefetchOptions & RefetchQueryFilters<[keyof F, F[keyof F] | undefined]>) => void;
-} {
-  const { isLoading, data, refetch, isSuccess, isError, error } = reactUseQuery(
-    {
-      queryHash,
-      queryKey: [queryKey],
-      queryFn: () => service(queryKey?.[1]),
-      enabled: autoStart,
-    },
-  );
+type UseQueryParams<R, F = unknown> = {
+	queryKey: QueryKey;
+	service: (filters?: F) => Promise<R>;
+	autoStart?: boolean;
+	queryHash?: string;
+};
 
-  return { isLoading, data, isSuccess, isError, error, refetch };
+function useQuery<R, F = unknown>({ queryKey, service, autoStart = true, queryHash }: UseQueryParams<R, F>) {
+	const { isLoading, data, refetch, isSuccess, isError, error } = reactUseQuery<R, Error>({
+		queryKey,
+		queryHash,
+		queryFn: () => {
+			const [, filters] = queryKey as [string, F];
+			return service(filters);
+		},
+		enabled: autoStart,
+		gcTime: 0,
+	});
+
+	return { isLoading, data, isSuccess, isError, error, refetch };
 }
 
 export default useQuery;

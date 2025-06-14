@@ -4,13 +4,20 @@ import AppLayout from './components/layouts/AppLayout';
 import NotFound from '@/pages/(public)/Others/NotFound/NotFound.tsx';
 import { PublicRoute } from './components/PublicRoute/PublicRoute';
 import { RequireAuth } from './components/RequireAuth/RequireAuth';
+import { Loader2 } from 'lucide-react';
 
 const Login = lazy(() => import('@/pages/(public)/Login/Login'));
 const Home = lazy(() => import('@/pages/(private)/Home/Home.tsx'));
 
 export default function AppRouter() {
 	return (
-		<Suspense fallback={<div>Carregando...</div>}>
+		<Suspense
+			fallback={
+				<div className="flex items-center justify-center h-screen">
+					<Loader2 className="size-4 animate-spin" />
+				</div>
+			}
+		>
 			<Routes>
 				{/* Rota pública */}
 				<Route

@@ -1,11 +1,11 @@
 import { toast } from 'sonner';
-import { useForm, type SubmitHandler } from 'react-hook-form';
 import login from '@/services/auth/login.ts';
 import { useNavigate } from 'react-router-dom';
 import useMutation from '@/hooks/useMutation.tsx';
 import { useAuth } from '@/context/AuthContext.tsx';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema } from '@/pages/(public)/Login/_types';
+import { useForm, type SubmitHandler } from 'react-hook-form';
 import type { LoginFormData } from '@/pages/(public)/Login/_types';
 
 export default function useLoginFunctions() {
@@ -24,7 +24,7 @@ export default function useLoginFunctions() {
 			navigate('/inicio', { replace: true });
 		},
 		onError: (error) => {
-			toast.error(error instanceof Error ? error.message : 'Erro desconhecido no login.');
+			toast.error(Boolean(error.message) ? error.message : 'Erro desconhecido no login.');
 		},
 	});
 
