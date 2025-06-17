@@ -180,7 +180,6 @@ export default function Voluntarios() {
 				</Card>
 			</div>
 
-			{/* Desktop: Table */}
 			<div className="hidden md:block">
 				<Card>
 					<CardHeader>
@@ -200,18 +199,18 @@ export default function Voluntarios() {
 								</TableHeader>
 								<TableBody>
 									{Array.from({ length: 6 }).map((_, idx) => (
-										<TableRow key={idx} className="animate-pulse">
+										<TableRow key={idx}>
 											<TableCell>
-												<div className="h-5 w-32 bg-gray-200 rounded" />
+												<div className="h-5 w-32 bg-gray-200 rounded animate-pulse" />
 											</TableCell>
 											<TableCell>
-												<div className="h-4 w-24 bg-gray-200 rounded" />
+												<div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
 											</TableCell>
 											<TableCell>
-												<div className="h-4 w-20 bg-gray-200 rounded" />
+												<div className="h-4 w-20 bg-gray-200 rounded animate-pulse" />
 											</TableCell>
 											<TableCell>
-												<div className="h-3 w-16 bg-gray-200 rounded" />
+												<div className="h-3 w-16 bg-gray-200 rounded animate-pulse" />
 											</TableCell>
 										</TableRow>
 									))}
