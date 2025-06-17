@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
@@ -34,9 +35,9 @@
 	--sidebar-accent-foreground: oklch(0.4426 0.1653 352.3762);
 	--sidebar-border: oklch(0.9311 0.0448 343.3135);
 	--sidebar-ring: oklch(0.6002 0.2414 0.1348);
-	--font-sans: 'Nunito', sans-serif; /* textos comuns / placeholders */
-	--font-serif: 'Roboto', sans-serif; /* parágrafos */
-	--font-mono: 'Nunito', sans-serif; /* títulos */
+	--font-sans: 'Rubik', sans-serif;
+	--font-serif: 'Playfair Display', serif;
+	--font-mono: 'Space Mono', monospace;
 	--radius: 0.5rem;
 	--shadow-2xs: 0px 3px 0px 0px hsl(330 70% 30% / 0.09);
 	--shadow-xs: 0px 3px 0px 0px hsl(330 70% 30% / 0.09);
@@ -81,9 +82,9 @@
 	--sidebar-accent-foreground: oklch(0.8624 0.1307 326.6356);
 	--sidebar-border: oklch(0.328 0.1202 313.5393);
 	--sidebar-ring: oklch(0.7543 0.2319 332.0212);
-	--font-sans: Quicksand, sans-serif;
-	--font-serif: Playfair Display, serif;
-	--font-mono: Space Mono, monospace;
+	--font-sans: 'Rubik', sans-serif;
+	--font-serif: 'Playfair Display', serif;
+	--font-mono: 'Space Mono', monospace;
 	--radius: 0.5rem;
 	--shadow-2xs: 0px 3px 0px 0px hsl(300 80% 50% / 0.09);
 	--shadow-xs: 0px 3px 0px 0px hsl(300 80% 50% / 0.09);
@@ -160,8 +161,8 @@
            lg:text-5xl
            xl:text-6xl
            font-bold
-           tracking-tight
-           font-mono;
+		   font-sans
+           tracking-tight;
 	}
 
 	h2 {
@@ -171,8 +172,8 @@
            lg:text-4xl
            xl:text-5xl
            font-semibold
-           tracking-tight
-           font-mono;
+		   font-sans
+           tracking-tight;
 	}
 
 	h3 {
@@ -181,7 +182,7 @@
            md:text-2xl
            font-semibold
            tracking-tight
-           font-mono;
+		   font-sans;
 	}
 
 	h4 {
@@ -192,7 +193,7 @@
            xl:text-3xl
            font-semibold
            tracking-tight
-           font-mono;
+		   font-sans;
 	}
 
 	h5 {
@@ -203,15 +204,15 @@
            xl:text-2xl
            font-semibold
            tracking-tight
-           font-mono;
+		   font-sans;
 	}
 
 	p {
-		@apply font-serif
-           text-sm
+		@apply text-sm
            sm:text-base
            md:text-lg
            leading-relaxed
+		   font-sans
            text-muted-foreground;
 	}
 
