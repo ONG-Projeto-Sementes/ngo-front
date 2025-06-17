@@ -9,6 +9,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 
 export default function InputField<T extends FieldValues>({
 	name,
+	width,
 	label,
 	control,
 	placeholder,
@@ -25,7 +26,7 @@ export default function InputField<T extends FieldValues>({
 			control={control}
 			name={name}
 			render={({ field }) => (
-				<FormItem>
+				<FormItem className={width ? width : ''}>
 					{Boolean(label) && <FormLabel>{label}</FormLabel>}
 					<FormControl>
 						<div className={cn('relative', disabled && 'cursor-not-allowed')}>

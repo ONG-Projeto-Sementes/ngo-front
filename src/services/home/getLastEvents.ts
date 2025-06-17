@@ -31,16 +31,6 @@ export async function getLastEvents(): Promise<EventsResponse[]> {
 			title: 'Exposição de Alimentos Orgânicos',
 			date: '25/10/2023',
 		},
-		{
-			imageUrl: '',
-			title: 'Oficina de Compostagem',
-			date: '30/10/2023',
-		},
-		{
-			imageUrl: 'https://images.unsplash.com/photo-1464983953574-0892a716854b',
-			title: 'Mutirão de Plantio',
-			date: '05/11/2023',
-		},
 	];
 
 	return MockData;
