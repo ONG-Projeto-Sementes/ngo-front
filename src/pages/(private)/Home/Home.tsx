@@ -30,7 +30,7 @@ export default function Home() {
 						</>
 					) : (
 						data?.map((item, index) => (
-							<List.Item key={index} imageUrl={item.imageUrl} title={item.title} date={item.date} />
+							<List.Item key={index} imageUrl={item.imageUrl} title={item.title} date={item.date} _id={item._id}/>
 						))
 					)}
 				</List.Root>

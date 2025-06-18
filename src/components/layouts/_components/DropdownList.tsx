@@ -12,14 +12,15 @@ const DropdownListListItem = ({ label, to }: DropdownListItemProps) => {
 	const path = usePathName();
 	return (
 		<Link to={to} className="relative flex items-center justify-center">
-			<div className="relative cursor-pointer p-2 rounded-lg transition-colors">
-				<p className={cn(Boolean(path.includes(to)) && '', 'text-md font-sans transition-all')}>{label}</p>
-				<div
+			<div className="relative cursor-pointer p-2 rounded-lg transition-colors animation-in duration-300">
+				<p
 					className={cn(
-						'absolute left-0 -top-11 h-full w-full rounded-lg bg-primary transition-all',
-						Boolean(path.includes(to)) ? 'opacity-100' : 'opacity-0 transition-opacity'
+						path.includes(to) ? 'text-accent' : 'hover:text-accent',
+						'text-md font-sans transition-all',
 					)}
-				/>
+				>
+					{label}
+				</p>
 			</div>
 		</Link>
 	);

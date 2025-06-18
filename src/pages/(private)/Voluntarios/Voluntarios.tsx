@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Undo2, UserRoundPlus } from 'lucide-react';
+import { Eye, Undo2, UserRoundPlus } from 'lucide-react';
 import { Card, CardTitle, CardAction, CardHeader, CardContent, CardDescription } from '@/components/ui/card';
 
 import { useState } from 'react';
@@ -10,6 +10,7 @@ import useSearchVolunteer from './_hooks/useSearchVolunteer';
 import useRegisterVolunteer from './_hooks/useRegisterVolunteer';
 import getVolunteers, { type VolunteersResponse } from '@/services/volunteer/getVolunteers';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar.tsx';
 
 export default function Voluntarios() {
 	const [createVolunteer, setCreateVolunteer] = useState<boolean>(false);
@@ -150,14 +151,14 @@ export default function Voluntarios() {
 											<span className="text-xs text-gray-400">
 												{volunteer.createdAt
 													? (() => {
-															const date = new Date(volunteer.createdAt);
-															const day = String(date.getDate()).padStart(2, '0');
-															const month = String(date.getMonth() + 1).padStart(2, '0');
-															const year = date.getFullYear();
-															const hours = String(date.getHours()).padStart(2, '0');
-															const minutes = String(date.getMinutes()).padStart(2, '0');
-															return `${day}/${month}/${year} ${hours}:${minutes}`;
-														})()
+														const date = new Date(volunteer.createdAt);
+														const day = String(date.getDate()).padStart(2, '0');
+														const month = String(date.getMonth() + 1).padStart(2, '0');
+														const year = date.getFullYear();
+														const hours = String(date.getHours()).padStart(2, '0');
+														const minutes = String(date.getMinutes()).padStart(2, '0');
+														return `${day}/${month}/${year} ${hours}:${minutes}`;
+													})()
 													: ''}
 											</span>
 										</div>
@@ -204,10 +205,22 @@ export default function Voluntarios() {
 												<div className="h-5 w-32 bg-gray-200 rounded animate-pulse" />
 											</TableCell>
 											<TableCell>
+												<div className="h-5 w-32 bg-gray-200 rounded animate-pulse" />
+											</TableCell>
+											<TableCell>
+												<div className="h-5 w-32 bg-gray-200 rounded animate-pulse" />
+											</TableCell>
+											<TableCell>
 												<div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
 											</TableCell>
 											<TableCell>
 												<div className="h-4 w-20 bg-gray-200 rounded animate-pulse" />
+											</TableCell>
+											<TableCell>
+												<div className="h-3 w-16 bg-gray-200 rounded animate-pulse" />
+											</TableCell>
+											<TableCell>
+												<div className="h-3 w-16 bg-gray-200 rounded animate-pulse" />
 											</TableCell>
 											<TableCell>
 												<div className="h-3 w-16 bg-gray-200 rounded animate-pulse" />
@@ -221,31 +234,44 @@ export default function Voluntarios() {
 								<Table>
 									<TableHeader>
 										<TableRow>
+											<TableHead className="flex items-center justify-center w-full"></TableHead>
 											<TableHead>Nome</TableHead>
+											<TableHead>Idade</TableHead>
 											<TableHead>Contato</TableHead>
 											<TableHead>CPF</TableHead>
 											<TableHead>Cadastrado em</TableHead>
+											<TableHead>Cidade</TableHead>
+											<TableHead className="flex items-center justify-center w-full">Ações</TableHead>
 										</TableRow>
 									</TableHeader>
 									<TableBody>
 										{data?.map((volunteer) => (
 											<TableRow key={volunteer._id}>
-												<TableCell className="font-medium">{volunteer.name}</TableCell>
-												<TableCell>{volunteer.contact}</TableCell>
-												<TableCell>{volunteer.cpf}</TableCell>
+												<TableCell className="flex items-center justify-center w-full">
+													<Avatar>
+														<AvatarImage src={'https://github.com/shadcn.png'} alt={'Avatar'} />
+														<AvatarFallback>?</AvatarFallback>
+													</Avatar>
+												</TableCell>
+												<TableCell className="font-medium">{volunteer.name || '-'}</TableCell>
+												<TableCell className="font-medium">Idade</TableCell>
+												<TableCell>{volunteer.contact || '-'}</TableCell>
+												<TableCell>{volunteer.cpf || '-'}</TableCell>
 												<TableCell>
 													{volunteer.createdAt
 														? (() => {
-																const date = new Date(volunteer.createdAt);
-																const day = String(date.getDate()).padStart(2, '0');
-																const month = String(date.getMonth() + 1).padStart(2, '0');
-																const year = date.getFullYear();
-																const hours = String(date.getHours()).padStart(2, '0');
-																const minutes = String(date.getMinutes()).padStart(2, '0');
-																return `${day}/${month}/${year} ${hours}:${minutes}`;
-															})()
-														: ''}
+															const date = new Date(volunteer.createdAt);
+															const day = String(date.getDate()).padStart(2, '0');
+															const month = String(date.getMonth() + 1).padStart(2, '0');
+															const year = date.getFullYear();
+															const hours = String(date.getHours()).padStart(2, '0');
+															const minutes = String(date.getMinutes()).padStart(2, '0');
+															return `${day}/${month}/${year} ${hours}:${minutes}`;
+														})()
+														: 'Data inválida'}
 												</TableCell>
+												<TableCell>Cidade</TableCell>
+												<TableCell className="flex items-center justify-center w-full mb-1 mr-2"><Eye /></TableCell>
 											</TableRow>
 										))}
 									</TableBody>

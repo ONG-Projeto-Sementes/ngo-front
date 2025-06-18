@@ -20,12 +20,12 @@ export interface InvalidCredentialsError {
 export async function getVolunteers(): Promise<VolunteersResponse[]> {
 	try {
 		return await apiClient.get<VolunteersResponse[]>('/volunteers');
-	} catch (err) {
-		const axiosErr = err as RequestError<InvalidCredentialsError>;
+	} catch (error) {
+		const axiosErr = error as RequestError<InvalidCredentialsError>;
 		if (axiosErr.response?.data?.name) {
 			throw new Error(axiosErr.response.data.message);
 		}
-		throw err;
+		throw error;
 	}
 }
 

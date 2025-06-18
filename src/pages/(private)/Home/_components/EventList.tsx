@@ -4,44 +4,57 @@ import type { EventListItemProps, EventListRootProps } from '../_types';
 import { useState } from 'react';
 
 const EventListRoot = ({ children }: EventListRootProps) => {
-	return <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full p-4">{children}</div>;
+	return (
+		<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full p-4">
+			{children}
+		</div>
+	);
 };
 
-const EventListItem = ({ imageUrl, title, date }: EventListItemProps) => {
+const EventListItem = ({ imageUrl, title, date, _id }: EventListItemProps) => {
 	const [loaded, setLoaded] = useState(false);
-	const [error, setError] = useState(false);
+	const [src, setSrc] = useState(imageUrl || '/svg/default.svg');
 
 	return (
-		<div className="w-full cursor-pointer group transition-all duration-300 rounded-xl overflow-hidden hover:scale-[1.005] active:scale-[1.015]">
+		<div
+			className={cn((Boolean(_id) || Boolean(imageUrl) || Boolean(title) || Boolean(date)) ? 'cursor-not-allowed' : 'cursor-pointer hover:scale-[1.005] active:scale-[1.015]', `w-full group transition-all duration-300 rounded-xl overflow-hidden`)}>
 			<div className="relative h-[240px] w-full overflow-hidden">
 				{!loaded && (
 					<div className="absolute inset-0 flex items-center justify-center bg-gray-200">
 						<Skeleton className="h-full w-full" />
 					</div>
 				)}
-				{error && (
-					<div className="absolute inset-0 flex items-center justify-center bg-gray-200">
-						<p className="text-red-500">Image not found</p>
-					</div>
-				)}
 				<img
-					src={imageUrl || '/svg/default.svg'}
+					src={src}
 					alt={title || 'image-not-found'}
 					loading="eager"
 					onLoad={() => setLoaded(true)}
 					onError={() => {
-						setError(true);
-						setLoaded(true);
+						if (src !== '/svg/default.svg') {
+							setSrc('/svg/default.svg');
+						} else {
+							setLoaded(true);
+						}
 					}}
 					className={cn(
-						Boolean(!imageUrl) && 'opacity-25 cursor-not-allowed',
-						`w-full h-full object-cover transition-all duration-300 group-hover:grayscale group-hover:brightness-75 group-hover:opacity-90`
+						`w-full h-full object-cover transition-all duration-300 group-hover:grayscale group-hover:brightness-75 group-hover:opacity-90`,
+						src === '/svg/default.svg' && 'opacity-25 cursor-not-allowed',
 					)}
 				/>
 			</div>
+
 			<div className="p-4 transition-colors duration-300">
-				<p className="font-semibold group-hover:text-black/70">{title}</p>
-				<p className="text-sm group-hover:text-black/70">{date}</p>
+				{title ? (
+					<p className="font-semibold group-hover:text-black/70">{title}</p>
+				) : (
+					<p className="text-gray-500">Título indisponível</p>
+				)}
+
+				{date ? (
+					<p className="text-sm group-hover:text-black/70">{date}</p>
+				) : (
+					<p className="text-gray-400">Data indisponível</p>
+				)}
 			</div>
 		</div>
 	);

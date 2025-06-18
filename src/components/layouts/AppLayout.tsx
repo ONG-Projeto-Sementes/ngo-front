@@ -1,4 +1,4 @@
-import { Suspense, useState } from 'react';
+import { ReactNode, Suspense, useState } from 'react';
 import { Menu, LogOut } from 'lucide-react';
 import type { MenuItemsType } from './_types';
 import { ERoutes } from '../../types/ERoutes';
@@ -43,7 +43,6 @@ export default function AppLayout() {
 			}
 		};
 		window.addEventListener('resize', handleResize);
-		// Run once on mount in case the screen is already large
 		handleResize();
 		return () => window.removeEventListener('resize', handleResize);
 	}, []);
@@ -51,7 +50,7 @@ export default function AppLayout() {
 	return (
 		<div className="min-h-screen flex flex-col transition-all duration-300 ease-in-out">
 			<header className="bg-white">
-				<div className="container mx-auto flex items-center justify-start gap-0 lg:gap-8 px-4 py-1">
+				<div className="container mx-auto flex items-center justify-start gap-0 lg:gap-8 px-4 py-4">
 					<Link to="/inicio" className="flex items-center min-w-[100px] md:min-w-[110px] lg:min-w-auto">
 						<img src="/svg/logo.svg" alt="Logo" className="h-12 w-auto" />
 					</Link>
@@ -59,11 +58,11 @@ export default function AppLayout() {
 					<nav className="hidden sm:flex sm:items-center gap-0 lg:gap-6">
 						<Suspense
 							fallback={
-								<List.Root>
+								<div>
 									{menuItems.map((entry) => (
 										<List.Skeleton key={entry.label} />
-									))}
-								</List.Root>
+									)) as ReactNode[]}
+								</div>
 							}
 						>
 							<List.Root>
@@ -84,7 +83,7 @@ export default function AppLayout() {
 						</Button>
 						<p className="text-sm mr-4 truncate">{user?.username ?? ''}</p>
 						<Avatar>
-							<AvatarImage src={'https://github.com/shadcn.png'} alt={user?.username || 'Avatar'} />
+							<AvatarImage src={'/svg/default.svg'} alt={user?.username || 'Avatar'} />
 							<AvatarFallback>?</AvatarFallback>
 						</Avatar>
 					</span>
