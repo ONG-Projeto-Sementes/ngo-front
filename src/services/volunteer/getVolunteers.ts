@@ -2,15 +2,18 @@ import apiClient from '@/helpers/request.ts';
 import type { RequestError } from '@/services/auth/authentication.ts';
 
 export interface VolunteersResponse {
-	_id: string;
-	__v: number;
-	cpf: string;
-	name: string;
-	contact: string;
-	deleted: boolean;
-	createdAt: string;
-	updatedAt: string;
+  _id: string
+  name: string
+  cpf?: string
+  contact?: string
+  birthDate?: string
+  profilePicture?: string
+  deleted: boolean
+  createdAt: string
+  updatedAt: string
+  __v?: number
 }
+
 
 export interface InvalidCredentialsError {
 	name: string;
