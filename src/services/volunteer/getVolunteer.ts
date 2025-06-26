@@ -14,9 +14,9 @@ export interface VolunteerDTO {
 	__v: number;
 }
 
-export async function getVolunteers(): Promise<VolunteerDTO[]> {
+export async function getVolunteer(id: string): Promise<VolunteerDTO> {
 	try {
-		return await apiClient.get<VolunteerDTO[]>('/volunteers');
+		return await apiClient.get<VolunteerDTO>(`/volunteers/${id}`);
 	} catch (error) {
 		const axiosErr = error as RequestError<{ name: string; message: string }>;
 		if (axiosErr.response?.data?.message) {
@@ -26,4 +26,4 @@ export async function getVolunteers(): Promise<VolunteerDTO[]> {
 	}
 }
 
-export default getVolunteers;
+export default getVolunteer;

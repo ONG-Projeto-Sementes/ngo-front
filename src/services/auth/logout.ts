@@ -7,9 +7,9 @@ export interface UnauthenticatedError {
 	message: string;
 }
 
-export async function logout(): Promise<null> {
+export async function logout(): Promise<void> {
 	try {
-		return apiClient.post<null, void>('/auth/logout');
+		await apiClient.post<null, void>('/auth/logout');
 	} catch (err) {
 		const axiosErr = err as RequestError<UnauthenticatedError>;
 		if (axios.isAxiosError(axiosErr) && axiosErr.response?.data?.name === 'unauthenticated') {

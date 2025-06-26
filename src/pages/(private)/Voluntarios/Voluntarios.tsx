@@ -1,286 +1,242 @@
-import { Button } from '@/components/ui/button';
-import { Eye, Undo2, UserRoundPlus } from 'lucide-react';
-import { Card, CardTitle, CardAction, CardHeader, CardContent, CardDescription } from '@/components/ui/card';
-
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import { Eye, Plus, Trash } from 'lucide-react';
 import useQuery from '@/hooks/useQuery';
-import { Form } from '@/components/ui/form';
-import InputField from '@/components/InputField/InputField';
-import useSearchVolunteer from './_hooks/useSearchVolunteer';
-import useRegisterVolunteer from './_hooks/useRegisterVolunteer';
-import getVolunteers, { type VolunteersResponse } from '@/services/volunteer/getVolunteers';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar.tsx';
+import useMutation from '@/hooks/useMutation';
+import { toast } from 'sonner';
+import getVolunteers, { type VolunteerDTO } from '@/services/volunteer/getVolunteers';
+import deleteVolunteer from '@/services/volunteer/deleteVolunteer';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+
+function calculateAge(birthDate: string): number {
+	const birth = new Date(birthDate);
+	const today = new Date();
+	let age = today.getFullYear() - birth.getFullYear();
+	const m = today.getMonth() - birth.getMonth();
+	if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+		age--;
+	}
+	return age >= 0 ? age : 0;
+}
 
 export default function Voluntarios() {
-	const [createVolunteer, setCreateVolunteer] = useState<boolean>(false);
-
-	const { form: formSearch, onSubmit: onSubmitSearch } = useSearchVolunteer();
-	const { form, isLoading: isLoadingRegister, onSubmit } = useRegisterVolunteer();
-
-	const { data, isLoading } = useQuery<VolunteersResponse[]>({
+	const {
+		data: volunteers,
+		isLoading,
+		isError,
+		error,
+		refetch,
+	} = useQuery<VolunteerDTO[]>({
 		queryKey: ['volunteers'],
-		service: () => getVolunteers(),
+		service: getVolunteers,
 	});
 
-	return (
-		<div className="space-y-4 -mt-2">
-			<Card>
-				<CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
-					<div>
-						<CardTitle className="text-2xl">Voluntários</CardTitle>
-						<CardDescription>Gerencie todos os voluntários.</CardDescription>
-					</div>
-					<CardAction>
-						<Button type="button" size="sm" onClick={() => setCreateVolunteer(!createVolunteer)}>
-							{createVolunteer ? (
-								<span className="flex items-center gap-2 text-sm">
-									<Undo2 className="size-4" /> Voltar
-								</span>
-							) : (
-								<span className="flex items-center gap-2 text-sm">
-									<UserRoundPlus className="size-4" /> Cadastrar Voluntário
-								</span>
-							)}
-						</Button>
-					</CardAction>
-				</CardHeader>
-				<CardContent className="-mt-5">
-					{createVolunteer && (
-						<Form {...form}>
-							<form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col mt-4">
-								<div className="flex flex-col md:flex-row gap-3 w-full max-w-full">
-									<div className="w-full">
-										<InputField
-											control={form.control}
-											disabled={isLoadingRegister}
-											label="Nome"
-											name="name"
-											type="text"
-											width="w-full"
-											placeholder="Digite o nome do voluntário"
-										/>
-									</div>
-									<div className="w-full">
-										<InputField
-											control={form.control}
-											disabled={isLoadingRegister}
-											label="CPF"
-											name="cpf"
-											type="text"
-											width="w-full"
-											placeholder="000.000.000-00"
-										/>
-									</div>
-									<div className="w-full">
-										<InputField
-											control={form.control}
-											disabled={isLoadingRegister}
-											label="Contato ou Email"
-											name="contact"
-											type="text"
-											width="w-full"
-											placeholder="(00) 00000-0000 ou email@exemplo.com"
-										/>
-									</div>
-								</div>
-								<Button
-									type="submit"
-									size="sm"
-									className="w-fit mt-4 sm:mt-2"
-									disabled={isLoadingRegister}
-									isLoading={isLoadingRegister}
-								>
-									<UserRoundPlus className="size-4" /> Cadastrar
-								</Button>
-							</form>
-						</Form>
-					)}
-					<Form {...formSearch}>
-						<form
-							onSubmit={formSearch.handleSubmit(onSubmitSearch)}
-							className="flex flex-col md:flex-row items-center justify-center gap-3 w-full max-w-full md:max-w-sm mt-4"
-						>
-							<div className="w-full">
-								<InputField
-									control={formSearch.control}
-									label="Busca Rápida"
-									name="search"
-									type="search"
-									width="w-full"
-									placeholder="Digite o nome, cpf ou contato"
-								/>
-							</div>
-						</form>
-					</Form>
-				</CardContent>
-			</Card>
+	const { mutate: remove, isPending: isDeleting } = useMutation<string, void>((id) => deleteVolunteer(id), {
+		onSuccess: () => {
+			toast.success('Voluntário deletado com sucesso!');
+			refetch();
+		},
+		onError: (err: Error) => {
+			toast.error(err.message || 'Erro ao deletar voluntário');
+		},
+	});
 
-			<div className="block md:hidden">
-				<Card>
-					<CardHeader>
-						<CardTitle className="text-2xl">Voluntários</CardTitle>
-						<CardDescription>Lista de todos voluntários.</CardDescription>
-					</CardHeader>
-					<CardContent className="grid grid-cols-1 gap-4 -mt-2">
-						{isLoading ? (
-							Array.from({ length: 6 }).map((_, idx) => (
-								<div
-									key={idx}
-									className="bg-white rounded-lg shadow p-5 flex flex-col gap-2 border border-gray-100 animate-pulse"
-								>
-									<div className="flex items-center justify-between">
-										<div className="h-5 w-32 bg-gray-200 rounded" />
-										<div className="h-3 w-16 bg-gray-200 rounded" />
-									</div>
-									<div className="flex flex-col gap-1">
-										<div className="h-4 w-24 bg-gray-200 rounded" />
-										<div className="h-4 w-20 bg-gray-200 rounded" />
-									</div>
-								</div>
-							))
-						) : (
-							<>
-								{data?.map((volunteer) => (
-									<div
-										key={volunteer._id}
-										className="bg-white rounded-lg shadow p-5 flex flex-col gap-2 border border-gray-100"
-									>
-										<div className="flex items-center justify-between">
-											<h3 className="text-lg font-semibold text-primary">{volunteer.name}</h3>
-											<span className="text-xs text-gray-400">
-												{volunteer.createdAt
-													? (() => {
-														const date = new Date(volunteer.createdAt);
-														const day = String(date.getDate()).padStart(2, '0');
-														const month = String(date.getMonth() + 1).padStart(2, '0');
-														const year = date.getFullYear();
-														const hours = String(date.getHours()).padStart(2, '0');
-														const minutes = String(date.getMinutes()).padStart(2, '0');
-														return `${day}/${month}/${year} ${hours}:${minutes}`;
-													})()
-													: ''}
-											</span>
-										</div>
-										<div className="flex flex-col gap-1">
-											<span className="text-sm text-gray-700">
-												<strong>Contato:</strong> {volunteer.contact}
-											</span>
-											<span className="text-sm text-gray-700">
-												<strong>CPF:</strong> {volunteer.cpf}
-											</span>
-										</div>
-									</div>
-								))}
-								{!data?.length && (
-									<div className="col-span-full text-center text-gray-400 py-8">Nenhum voluntário encontrado.</div>
-								)}
-							</>
-						)}
-					</CardContent>
-				</Card>
+	const [search, setSearch] = useState('');
+
+	const filtered = useMemo(() => {
+		if (!volunteers) return [];
+		const term = search.toLowerCase();
+		return volunteers.filter((vol) => {
+			const birth = vol.birthDate ? new Date(vol.birthDate).toLocaleDateString('pt-BR') : '';
+			const created = new Date(vol.createdAt).toLocaleString('pt-BR', {
+				day: '2-digit',
+				month: '2-digit',
+				year: 'numeric',
+				hour: '2-digit',
+				minute: '2-digit',
+			});
+			const age = vol.birthDate ? calculateAge(vol.birthDate).toString() : '—';
+			return [vol.name, vol.cpf, vol.contact, birth, created, age]
+				.filter(Boolean)
+				.join(' ')
+				.toLowerCase()
+				.includes(term);
+		});
+	}, [volunteers, search]);
+
+	return (
+		<div className="p-4">
+			<div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
+				<h1 className="text-2xl font-semibold">Voluntários</h1>
+				<div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 w-full md:w-auto">
+					<Input
+						type="search"
+						value={search}
+						onChange={(e) => setSearch(e.target.value)}
+						placeholder="Buscar por nome, CPF, contato, idade..."
+						className="w-full md:w-64"
+					/>
+					<Link
+						to="/voluntarios/cadastro"
+						className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+					>
+						<Plus className="w-4 h-4" />
+						Cadastrar
+					</Link>
+				</div>
 			</div>
 
+			{isError && (
+				<div className="text-red-500">
+					<p>Erro ao carregar voluntários: {(error as Error).message}</p>
+					<Button onClick={() => refetch()}>Tentar novamente</Button>
+				</div>
+			)}
+
 			<div className="hidden md:block">
-				<Card>
-					<CardHeader>
-						<CardTitle className="text-2xl">Voluntários</CardTitle>
-						<CardDescription>Lista de todos voluntários.</CardDescription>
-					</CardHeader>
-					<CardContent className="-mt-2">
-						{isLoading ? (
-							<Table>
-								<TableHeader>
-									<TableRow>
-										<TableHead>Nome</TableHead>
-										<TableHead>Contato</TableHead>
-										<TableHead>CPF</TableHead>
-										<TableHead>Cadastrado em</TableHead>
-									</TableRow>
-								</TableHeader>
-								<TableBody>
-									{Array.from({ length: 6 }).map((_, idx) => (
-										<TableRow key={idx}>
-											<TableCell>
-												<div className="h-5 w-32 bg-gray-200 rounded animate-pulse" />
-											</TableCell>
-											<TableCell>
-												<div className="h-5 w-32 bg-gray-200 rounded animate-pulse" />
-											</TableCell>
-											<TableCell>
-												<div className="h-5 w-32 bg-gray-200 rounded animate-pulse" />
-											</TableCell>
-											<TableCell>
-												<div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
-											</TableCell>
-											<TableCell>
-												<div className="h-4 w-20 bg-gray-200 rounded animate-pulse" />
-											</TableCell>
-											<TableCell>
-												<div className="h-3 w-16 bg-gray-200 rounded animate-pulse" />
-											</TableCell>
-											<TableCell>
-												<div className="h-3 w-16 bg-gray-200 rounded animate-pulse" />
-											</TableCell>
-											<TableCell>
-												<div className="h-3 w-16 bg-gray-200 rounded animate-pulse" />
-											</TableCell>
-										</TableRow>
+				<Table>
+					<TableHeader>
+						<TableRow>
+							<TableHead>Foto</TableHead>
+							<TableHead>Nome</TableHead>
+							<TableHead>CPF</TableHead>
+							<TableHead>Contato</TableHead>
+							<TableHead>Nascimento</TableHead>
+							<TableHead>Idade</TableHead>
+							<TableHead>Cadastrado em</TableHead>
+							<TableHead className="text-center">Ações</TableHead>
+						</TableRow>
+					</TableHeader>
+					<TableBody>
+						{isLoading &&
+							Array.from({ length: 5 }).map((_, i) => (
+								<TableRow key={i}>
+									<TableCell>
+										<div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse" />
+									</TableCell>
+									{[...Array(6)].map((_, j) => (
+										<TableCell key={j}>
+											<div className="h-4 bg-gray-200 rounded animate-pulse" />
+										</TableCell>
 									))}
-								</TableBody>
-							</Table>
-						) : (
-							<>
-								<Table>
-									<TableHeader>
-										<TableRow>
-											<TableHead className="flex items-center justify-center w-full"></TableHead>
-											<TableHead>Nome</TableHead>
-											<TableHead>Idade</TableHead>
-											<TableHead>Contato</TableHead>
-											<TableHead>CPF</TableHead>
-											<TableHead>Cadastrado em</TableHead>
-											<TableHead>Cidade</TableHead>
-											<TableHead className="flex items-center justify-center w-full">Ações</TableHead>
-										</TableRow>
-									</TableHeader>
-									<TableBody>
-										{data?.map((volunteer) => (
-											<TableRow key={volunteer._id}>
-												<TableCell className="flex items-center justify-center w-full">
-													<Avatar>
-														<AvatarImage src={'https://github.com/shadcn.png'} alt={'Avatar'} />
-														<AvatarFallback>?</AvatarFallback>
-													</Avatar>
-												</TableCell>
-												<TableCell className="font-medium">{volunteer.name || '-'}</TableCell>
-												<TableCell className="font-medium">Idade</TableCell>
-												<TableCell>{volunteer.contact || '-'}</TableCell>
-												<TableCell>{volunteer.cpf || '-'}</TableCell>
-												<TableCell>
-													{volunteer.createdAt
-														? (() => {
-															const date = new Date(volunteer.createdAt);
-															const day = String(date.getDate()).padStart(2, '0');
-															const month = String(date.getMonth() + 1).padStart(2, '0');
-															const year = date.getFullYear();
-															const hours = String(date.getHours()).padStart(2, '0');
-															const minutes = String(date.getMinutes()).padStart(2, '0');
-															return `${day}/${month}/${year} ${hours}:${minutes}`;
-														})()
-														: 'Data inválida'}
-												</TableCell>
-												<TableCell>Cidade</TableCell>
-												<TableCell className="flex items-center justify-center w-full mb-1 mr-2"><Eye /></TableCell>
-											</TableRow>
-										))}
-									</TableBody>
-								</Table>
-								{!data?.length && <div className="text-center text-gray-400 py-8">Nenhum voluntário encontrado.</div>}
-							</>
+									<TableCell>
+										<div className="h-6 w-6 bg-gray-200 rounded animate-pulse mx-auto" />
+									</TableCell>
+								</TableRow>
+							))}
+
+						{!isLoading &&
+							filtered.map((vol) => (
+								<TableRow key={vol._id}>
+									<TableCell>
+										<Avatar>
+											{vol.profilePicture ? (
+												<AvatarImage src={vol.profilePicture} alt={vol.name} />
+											) : (
+												<AvatarFallback>{vol.name.charAt(0).toUpperCase()}</AvatarFallback>
+											)}
+										</Avatar>
+									</TableCell>
+									<TableCell className="font-medium">{vol.name}</TableCell>
+									<TableCell>{vol.cpf ?? '—'}</TableCell>
+									<TableCell>{vol.contact ?? '—'}</TableCell>
+									<TableCell>{vol.birthDate ? new Date(vol.birthDate).toLocaleDateString('pt-BR') : '—'}</TableCell>
+									<TableCell>{vol.birthDate ? calculateAge(vol.birthDate) : '—'}</TableCell>
+									<TableCell>
+										{new Date(vol.createdAt).toLocaleString('pt-BR', {
+											day: '2-digit',
+											month: '2-digit',
+											year: 'numeric',
+											hour: '2-digit',
+											minute: '2-digit',
+										})}
+									</TableCell>
+									<TableCell className="text-center flex items-center justify-center gap-2">
+										<Link to={`/voluntarios/${vol._id}`}>
+											<Eye className="h-5 w-5 text-primary hover:text-primary-dark" />
+										</Link>
+										<button
+											onClick={() => remove(vol._id)}
+											disabled={isDeleting}
+											className="inline-flex items-center justify-center p-1 rounded hover:bg-red-100 cursor-pointer"
+										>
+											<Trash className="h-5 w-5 text-red-600 hover:text-red-800" />
+										</button>
+									</TableCell>
+								</TableRow>
+							))}
+
+						{!isLoading && filtered.length === 0 && (
+							<TableRow>
+								<TableCell colSpan={8} className="text-center text-gray-500 py-4">
+									Nenhum voluntário encontrado.
+								</TableCell>
+							</TableRow>
 						)}
-					</CardContent>
-				</Card>
+					</TableBody>
+				</Table>
+			</div>
+
+			{/* Mobile */}
+			<div className="flex flex-col gap-4 md:hidden">
+				{!isLoading &&
+					filtered.map((vol) => (
+						<div key={vol._id} className="border rounded-lg p-4 shadow flex flex-col">
+							<div className="flex items-center justify-between mb-2">
+								<div className="flex items-center space-x-4">
+									<Avatar className="h-12 w-12">
+										{vol.profilePicture ? (
+											<AvatarImage src={vol.profilePicture} alt={vol.name} />
+										) : (
+											<AvatarFallback>{vol.name.charAt(0).toUpperCase()}</AvatarFallback>
+										)}
+									</Avatar>
+									<div>
+										<h2 className="text-lg font-semibold">{vol.name}</h2>
+										<p className="text-sm text-gray-600">Idade: {vol.birthDate ? calculateAge(vol.birthDate) : '—'}</p>
+									</div>
+								</div>
+								<div className="flex items-center gap-2">
+									<Link to={`/voluntarios/${vol._id}`}>
+										<Eye className="h-6 w-6 text-primary hover:text-primary-dark  cursor-pointer" />
+									</Link>
+									<button
+										onClick={() => remove(vol._id)}
+										disabled={isDeleting}
+										className="p-1 rounded hover:bg-red-100  cursor-pointer"
+									>
+										<Trash className="h-6 w-6 text-red-600 hover:text-red-800" />
+									</button>
+								</div>
+							</div>
+							<p className="text-sm">
+								<strong>CPF:</strong> {vol.cpf ?? '—'}
+							</p>
+							<p className="text-sm">
+								<strong>Contato:</strong> {vol.contact ?? '—'}
+							</p>
+							<p className="text-sm">
+								<strong>Nascimento:</strong> {vol.birthDate ? new Date(vol.birthDate).toLocaleDateString('pt-BR') : '—'}
+							</p>
+							<p className="text-sm text-gray-500 mt-2">
+								Cadastrado em:{' '}
+								{new Date(vol.createdAt).toLocaleString('pt-BR', {
+									day: '2-digit',
+									month: '2-digit',
+									year: 'numeric',
+									hour: '2-digit',
+									minute: '2-digit',
+								})}
+							</p>
+						</div>
+					))}
+
+				{!isLoading && filtered.length === 0 && (
+					<div className="text-center text-gray-500 py-4">Nenhum voluntário encontrado.</div>
+				)}
 			</div>
 		</div>
 	);

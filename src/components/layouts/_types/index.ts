@@ -5,6 +5,11 @@ export interface MenuItemsType {
 
 export interface DropdownListRootProps {
 	children: React.ReactNode;
+	className?: string;
 }
 
-export interface DropdownListItemProps extends MenuItemsType {}
+
+export interface DropdownListItemProps extends MenuItemsType {
+	className?: string;
+	onClick?: () => void;
+}

@@ -1,98 +1,78 @@
+import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-import usePathName from '../helpers/usePathName';
-import logoutService from '../services/auth/logout';
-import login, { type LoginRequest, type LoginResponse } from '../services/auth/login';
-import { isAuthenticated, type AuthenticatedUser } from '../services/auth/authentication';
-
-interface User {
-	_id: string;
-	username: string;
-	email: string;
-}
+import loginService from '@/services/auth/login';
+import logoutService from '@/services/auth/logout';
+import { isAuthenticated } from '@/services/auth/authentication';
+import type { AuthenticatedUser } from '@/services/auth/authentication';
+import type { LoginRequest, LoginResponse } from '@/services/auth/login';
 
 interface AuthContextType {
-	user: User | null;
-	loading: boolean;
+	user: AuthenticatedUser | null;
+	isLoading: boolean;
+	isPending: boolean;
 	login: (payload: LoginRequest) => Promise<void>;
 	logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType>({
-	user: null,
-	loading: true,
-	login: async () => {},
-	logout: async () => {},
-});
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-	const [user, setUser] = useState<User | null>(null);
-	const [loading, setLoading] = useState(true);
 	const navigate = useNavigate();
-	const path = usePathName();
+	const queryClient = useQueryClient();
 
-	useEffect(() => {
-		async function checkAuth() {
-			setLoading(true);
-
+	const { data: user, isLoading } = useQuery<AuthenticatedUser | null, Error>({
+		queryKey: ['auth', 'me'],
+		queryFn: async () => {
 			try {
-				const session: AuthenticatedUser = await isAuthenticated();
-				setUser({
-					_id: session._id,
-					username: session.username,
-					email: session.email,
-				});
-				if (path === '/login' || path === '/register') {
-					navigate('/inicio', { replace: true });
-				}
-			} catch (err) {
-				setUser(null);
-
-				const privateRoutes = ['/inicio', '/dashboard', '/perfil'];
-				if (privateRoutes.includes(path)) {
-					navigate('/login', { replace: true });
-				}
-			} finally {
-				setLoading(false);
+				return await isAuthenticated();
+			} catch {
+				return null;
 			}
-		}
+		},
+		staleTime: Infinity,
+		gcTime: Infinity,
+		refetchOnWindowFocus: false,
+	});
 
-		checkAuth();
-	}, [navigate]);
-
-	async function loginUser(payload: LoginRequest) {
-		try {
-			const res: LoginResponse = await login(payload);
-
-			setUser({
-				_id: res._id,
-				username: res.username,
-				email: res.email,
-			});
+	const loginMutation = useMutation<LoginResponse, Error, LoginRequest>({
+		mutationFn: (creds) => loginService(creds),
+		onSuccess: (data) => {
+			const u: AuthenticatedUser = {
+				_id: data._id,
+				username: data.username,
+				email: data.email,
+			};
+			queryClient.setQueryData(['auth', 'me'], u);
 			navigate('/inicio', { replace: true });
-		} catch (err) {
-			throw err;
-		}
-	}
+		},
+	});
 
-	async function logoutUser() {
-		try {
-			await logoutService();
-		} catch (err) {
-		} finally {
-			setUser(null);
+	const logoutMutation = useMutation<void, Error>({
+		mutationFn: () => logoutService(),
+		onSuccess: () => {
+			queryClient.setQueryData<AuthenticatedUser | null>(['auth', 'me'], null);
 			navigate('/login', { replace: true });
-		}
-	}
+		},
+	});
+
+	const login = async (payload: LoginRequest) => {
+		await loginMutation.mutateAsync(payload);
+	};
+	const logout = async () => {
+		await logoutMutation.mutateAsync();
+	};
 
 	return (
 		<AuthContext.Provider
 			value={{
-				user,
-				loading,
-				login: loginUser,
-				logout: logoutUser,
+				isPending: loginMutation.isPending || logoutMutation.isPending,
+				user: user ?? null,
+				isLoading,
+				login,
+				logout,
 			}}
 		>
 			{children}
@@ -100,6 +80,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	);
 }
 
-export function useAuth() {
-	return useContext(AuthContext);
+export function useAuth(): AuthContextType {
+	const ctx = useContext(AuthContext);
+	if (!ctx) {
+		throw new Error('useAuth deve ser usado dentro de <AuthProvider>');
+	}
+	return ctx;
 }

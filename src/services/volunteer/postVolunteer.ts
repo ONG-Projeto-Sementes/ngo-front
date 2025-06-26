@@ -1,35 +1,25 @@
 import apiClient from '@/helpers/request.ts';
-import type { RequestError } from '@/services/auth/authentication.ts';
-
-export interface VolunteerRequest {
-	cpf: string;
-	name: string;
-	contact: string;
-}
 
 export interface VolunteerResponse {
 	__v: number;
-	cpf: string;
+	cpf?: string;
 	_id: string;
 	name: string;
-	contact: string;
+	contact?: string;
+	profilePicture?: string;
+	birthDate?: string;
 	deleted: boolean;
 	createdAt: string;
 	updatedAt: string;
 }
 
-export interface InvalidCredentialsError {
-	name: string;
-	message: string;
-}
-
-export async function postVolunteer(payload: VolunteerRequest): Promise<VolunteerResponse> {
+export async function postVolunteer(payload: FormData): Promise<VolunteerResponse> {
 	try {
-		const data = await apiClient.post<VolunteerResponse, VolunteerRequest>('/volunteers', payload);
+		const data = await apiClient.post<VolunteerResponse, FormData>('/volunteers', payload);
 		return data;
 	} catch (err) {
-		const axiosErr = err as RequestError<InvalidCredentialsError>;
-		if (axiosErr.response?.data?.name) {
+		const axiosErr = err as { response?: { data: { message?: string } } };
+		if (axiosErr.response?.data?.message) {
 			throw new Error(axiosErr.response.data.message);
 		}
 		throw err;
