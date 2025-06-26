@@ -1,25 +1,19 @@
 import type { JSX } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { Navigate, useLocation } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { Navigate, useLocation } from 'react-router-dom';
 
-interface RequireAuthProps {
-	children: JSX.Element;
-}
-
-export function RequireAuth({ children }: RequireAuthProps) {
-	const { user, loading } = useAuth();
+export function RequireAuth({ children }: { children: JSX.Element }) {
+	const { user, isLoading } = useAuth();
 	const location = useLocation();
 
-	if (loading) {
+	if (isLoading) {
 		return (
-			<div>
-				<div className="flex items-center justify-center h-screen">
-					<Loader2 className="size-4 animate-spin" />
-				</div>
+			<div className="flex items-center justify-center h-screen">
+				<Loader2 className="animate-spin" />
 			</div>
 		);
 	}
 
-	return !user ? <Navigate to="/login" state={{ from: location }} replace /> : children;
+	return user ? children : <Navigate to="/login" state={{ from: location }} replace />;
 }

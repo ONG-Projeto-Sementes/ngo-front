@@ -4,8 +4,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import type { DropdownListItemProps, DropdownListRootProps } from '../_types';
 import { Link } from 'react-router-dom';
 
-const DropdownListRoot = ({ children }: DropdownListRootProps) => {
-	return <div className="flex gap-3">{children}</div>;
+const DropdownListRoot = ({ children, className }: DropdownListRootProps) => {
+	return <div className={`${className ? className : 'flex gap-4'}`}>{children}</div>;
 };
 
 const DropdownListListItem = ({ label, to }: DropdownListItemProps) => {
@@ -13,12 +13,7 @@ const DropdownListListItem = ({ label, to }: DropdownListItemProps) => {
 	return (
 		<Link to={to} className="relative flex items-center justify-center">
 			<div className="relative cursor-pointer p-2 rounded-lg transition-colors animation-in duration-300">
-				<p
-					className={cn(
-						path.includes(to) ? 'text-accent' : 'hover:text-accent',
-						'text-md font-sans transition-all',
-					)}
-				>
+				<p className={cn(path.includes(to) ? 'text-accent' : 'hover:text-accent', 'text-md font-sans transition-all')}>
 					{label}
 				</p>
 			</div>
@@ -30,13 +25,13 @@ const DropdownListMobileRoot = ({ children }: DropdownListRootProps) => {
 	return <div className="flex flex-col w-full">{children}</div>;
 };
 
-const DropdownListListItemMobile = ({ label, to }: DropdownListItemProps) => {
+const DropdownListListItemMobile = ({ label, to, className, onClick }: DropdownListItemProps) => {
 	const path = usePathName();
 	const isActive = path.includes(to);
 	return (
-		<Link to={to} className="relative flex flex-col items-center justify-center w-full">
+		<Link to={to} className="relative flex flex-col items-center justify-center w-full" onClick={onClick}>
 			<div className="relative cursor-pointer p-2 rounded-lg transition-colors w-screen">
-				<p className={cn(isActive && '', 'text-center text-md font-sans transition-all')}>{label}</p>
+				<p className={cn(isActive && '', className, 'text-center text-md font-sans transition-all')}>{label}</p>
 			</div>
 			<hr className={cn('w-full border-t', isActive ? 'border-primary' : 'border-gray-200')} />
 		</Link>
