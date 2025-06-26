@@ -1,18 +1,11 @@
-// import apiClient from '@/helpers/request.ts';
-
-export interface EventsResponse {
+export interface EventResponse {
+	_id: string;
 	imageUrl: string;
 	title: string;
 	date: string;
 }
 
-export async function getLastEvents(): Promise<EventsResponse[]> {
-	// try {
-	// 	const data = await apiClient.get<EventsResponse[]>('/event');
-	// 	return data;
-	// } catch (err) {
-	// 	throw err;
-	// }
+export async function getLastEvents(): Promise<EventResponse[]> {
 	await new Promise((resolve) => setTimeout(resolve, 1000));
 
 	const MockData = [
@@ -38,5 +31,3 @@ export async function getLastEvents(): Promise<EventsResponse[]> {
 
 	return MockData;
 }
-
-export default getLastEvents;

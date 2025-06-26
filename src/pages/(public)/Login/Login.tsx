@@ -4,7 +4,7 @@ import InputField from '@/components/InputField/InputField.tsx';
 import useLoginFunctions from '@/pages/(public)/Login/_hooks/useLoginFunctions.ts';
 
 export default function Login() {
-	const { form, isLoading, onSubmit } = useLoginFunctions();
+	const { form, isPending, onSubmit } = useLoginFunctions();
 
 	return (
 		<div className="min-h-screen flex flex-col">
@@ -25,7 +25,7 @@ export default function Login() {
 					>
 						<InputField control={form.control} name="email" type="text" placeholder="Digite seu e-mail" />
 						<InputField control={form.control} name="password" type="password" placeholder="Digite sua senha" />
-						<Button type="submit" className="w-full" isLoading={isLoading} disabled={isLoading}>
+						<Button type="submit" className="w-full" isLoading={isPending} disabled={isPending}>
 							Entrar
 						</Button>
 					</form>

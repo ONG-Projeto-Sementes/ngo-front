@@ -1,12 +1,11 @@
 import useQuery from '@/hooks/useQuery';
 import { Sparkles } from 'lucide-react';
-import type { EventResponse } from './_types';
 import { List } from './_components/EventList';
-import getLastEvents from '@/services/home/getLastEvents';
+import { type EventResponse, getLastEvents } from '@/services/home/getLastEvents.ts';
 
 export default function Home() {
 	const { data, isLoading } = useQuery<EventResponse[]>({
-		queryKey: ['get-last-events'],
+		queryKey: ['event-list'],
 		service: getLastEvents,
 	});
 
