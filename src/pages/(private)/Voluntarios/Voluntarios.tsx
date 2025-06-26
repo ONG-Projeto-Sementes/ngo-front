@@ -1,15 +1,47 @@
-import { Link } from 'react-router-dom';
-import useQuery from '@/hooks/useQuery';
-import { Eye, Plus } from 'lucide-react';
 import { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import { Eye, Plus, Trash } from 'lucide-react';
+import useQuery from '@/hooks/useQuery';
+import useMutation from '@/hooks/useMutation';
+import { toast } from 'sonner';
+import getVolunteers, { type VolunteerDTO } from '@/services/volunteer/getVolunteers';
+import deleteVolunteer from '@/services/volunteer/deleteVolunteer';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import getVolunteers, { type VolunteersResponse } from '@/services/volunteer/getVolunteers';
-import { Table, TableRow, TableHead, TableBody, TableCell, TableHeader } from '@/components/ui/table';
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+
+function calculateAge(birthDate: string): number {
+	const birth = new Date(birthDate);
+	const today = new Date();
+	let age = today.getFullYear() - birth.getFullYear();
+	const m = today.getMonth() - birth.getMonth();
+	if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+		age--;
+	}
+	return age >= 0 ? age : 0;
+}
 
 export default function Voluntarios() {
-	const { data: volunteers, isLoading } = useQuery<VolunteersResponse[]>({
+	const {
+		data: volunteers,
+		isLoading,
+		isError,
+		error,
+		refetch,
+	} = useQuery<VolunteerDTO[]>({
 		queryKey: ['volunteers'],
 		service: getVolunteers,
+	});
+
+	const { mutate: remove, isPending: isDeleting } = useMutation<string, void>((id) => deleteVolunteer(id), {
+		onSuccess: () => {
+			toast.success('Voluntário deletado com sucesso!');
+			refetch();
+		},
+		onError: (err: Error) => {
+			toast.error(err.message || 'Erro ao deletar voluntário');
+		},
 	});
 
 	const [search, setSearch] = useState('');
@@ -18,19 +50,17 @@ export default function Voluntarios() {
 		if (!volunteers) return [];
 		const term = search.toLowerCase();
 		return volunteers.filter((vol) => {
-			return [
-				vol.name,
-				vol.cpf,
-				vol.contact,
-				vol.birthDate ? new Date(vol.birthDate).toLocaleDateString('pt-BR') : '',
-				new Date(vol.createdAt).toLocaleString('pt-BR', {
-					day: '2-digit',
-					month: '2-digit',
-					year: 'numeric',
-					hour: '2-digit',
-					minute: '2-digit',
-				}),
-			]
+			const birth = vol.birthDate ? new Date(vol.birthDate).toLocaleDateString('pt-BR') : '';
+			const created = new Date(vol.createdAt).toLocaleString('pt-BR', {
+				day: '2-digit',
+				month: '2-digit',
+				year: 'numeric',
+				hour: '2-digit',
+				minute: '2-digit',
+			});
+			const age = vol.birthDate ? calculateAge(vol.birthDate).toString() : '—';
+			return [vol.name, vol.cpf, vol.contact, birth, created, age]
+				.filter(Boolean)
 				.join(' ')
 				.toLowerCase()
 				.includes(term);
@@ -41,16 +71,14 @@ export default function Voluntarios() {
 		<div className="p-4">
 			<div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
 				<h1 className="text-2xl font-semibold">Voluntários</h1>
-
 				<div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 w-full md:w-auto">
-					<input
+					<Input
 						type="search"
 						value={search}
 						onChange={(e) => setSearch(e.target.value)}
-						placeholder="Buscar por nome, CPF, contato, data..."
-						className="w-full md:w-64 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+						placeholder="Buscar por nome, CPF, contato, idade..."
+						className="w-full md:w-64"
 					/>
-
 					<Link
 						to="/voluntarios/cadastro"
 						className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
@@ -61,28 +89,36 @@ export default function Voluntarios() {
 				</div>
 			</div>
 
+			{isError && (
+				<div className="text-red-500">
+					<p>Erro ao carregar voluntários: {(error as Error).message}</p>
+					<Button onClick={() => refetch()}>Tentar novamente</Button>
+				</div>
+			)}
+
 			<div className="hidden md:block">
 				<Table>
 					<TableHeader>
 						<TableRow>
-							<TableHead className="w-1/12">Foto</TableHead>
-							<TableHead className="w-2/12">Nome</TableHead>
-							<TableHead className="w-2/12">CPF</TableHead>
-							<TableHead className="w-2/12">Contato</TableHead>
-							<TableHead className="w-2/12">Nascimento</TableHead>
-							<TableHead className="w-2/12">Cadastrado em</TableHead>
-							<TableHead className="w-1/12 text-center">Ações</TableHead>
+							<TableHead>Foto</TableHead>
+							<TableHead>Nome</TableHead>
+							<TableHead>CPF</TableHead>
+							<TableHead>Contato</TableHead>
+							<TableHead>Nascimento</TableHead>
+							<TableHead>Idade</TableHead>
+							<TableHead>Cadastrado em</TableHead>
+							<TableHead className="text-center">Ações</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
 						{isLoading &&
-							Array.from({ length: 5 }).map((_, idx) => (
-								<TableRow key={idx}>
+							Array.from({ length: 5 }).map((_, i) => (
+								<TableRow key={i}>
 									<TableCell>
 										<div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse" />
 									</TableCell>
-									{[...Array(5)].map((_, i) => (
-										<TableCell key={i}>
+									{[...Array(6)].map((_, j) => (
+										<TableCell key={j}>
 											<div className="h-4 bg-gray-200 rounded animate-pulse" />
 										</TableCell>
 									))}
@@ -92,43 +128,50 @@ export default function Voluntarios() {
 								</TableRow>
 							))}
 
-						{!isLoading && filtered.length
-							? filtered.map((vol) => (
-									<TableRow key={vol._id}>
-										<TableCell>
-											<Avatar>
-												{vol.profilePicture ? (
-													<AvatarImage src={vol.profilePicture} alt={vol.name} />
-												) : (
-													<AvatarFallback>{vol.name.charAt(0).toUpperCase()}</AvatarFallback>
-												)}
-											</Avatar>
-										</TableCell>
-										<TableCell className="font-medium">{vol.name}</TableCell>
-										<TableCell>{vol.cpf ?? '—'}</TableCell>
-										<TableCell>{vol.contact ?? '—'}</TableCell>
-										<TableCell>{vol.birthDate ? new Date(vol.birthDate).toLocaleDateString('pt-BR') : '—'}</TableCell>
-										<TableCell>
-											{new Date(vol.createdAt).toLocaleString('pt-BR', {
-												day: '2-digit',
-												month: '2-digit',
-												year: 'numeric',
-												hour: '2-digit',
-												minute: '2-digit',
-											})}
-										</TableCell>
-										<TableCell className="text-center">
-											<Link to={`/volunteers/${vol._id}`}>
-												<Eye className="h-5 w-5 text-blue-600 hover:text-blue-800 mx-auto" />
-											</Link>
-										</TableCell>
-									</TableRow>
-								))
-							: null}
+						{!isLoading &&
+							filtered.map((vol) => (
+								<TableRow key={vol._id}>
+									<TableCell>
+										<Avatar>
+											{vol.profilePicture ? (
+												<AvatarImage src={vol.profilePicture} alt={vol.name} />
+											) : (
+												<AvatarFallback>{vol.name.charAt(0).toUpperCase()}</AvatarFallback>
+											)}
+										</Avatar>
+									</TableCell>
+									<TableCell className="font-medium">{vol.name}</TableCell>
+									<TableCell>{vol.cpf ?? '—'}</TableCell>
+									<TableCell>{vol.contact ?? '—'}</TableCell>
+									<TableCell>{vol.birthDate ? new Date(vol.birthDate).toLocaleDateString('pt-BR') : '—'}</TableCell>
+									<TableCell>{vol.birthDate ? calculateAge(vol.birthDate) : '—'}</TableCell>
+									<TableCell>
+										{new Date(vol.createdAt).toLocaleString('pt-BR', {
+											day: '2-digit',
+											month: '2-digit',
+											year: 'numeric',
+											hour: '2-digit',
+											minute: '2-digit',
+										})}
+									</TableCell>
+									<TableCell className="text-center flex items-center justify-center gap-2">
+										<Link to={`/voluntarios/${vol._id}`}>
+											<Eye className="h-5 w-5 text-primary hover:text-primary-dark" />
+										</Link>
+										<button
+											onClick={() => remove(vol._id)}
+											disabled={isDeleting}
+											className="inline-flex items-center justify-center p-1 rounded hover:bg-red-100 cursor-pointer"
+										>
+											<Trash className="h-5 w-5 text-red-600 hover:text-red-800" />
+										</button>
+									</TableCell>
+								</TableRow>
+							))}
 
-						{!isLoading && !filtered.length && (
+						{!isLoading && filtered.length === 0 && (
 							<TableRow>
-								<TableCell colSpan={7} className="text-center text-gray-500 py-4">
+								<TableCell colSpan={8} className="text-center text-gray-500 py-4">
 									Nenhum voluntário encontrado.
 								</TableCell>
 							</TableRow>
@@ -137,50 +180,61 @@ export default function Voluntarios() {
 				</Table>
 			</div>
 
+			{/* Mobile */}
 			<div className="flex flex-col gap-4 md:hidden">
-				{!isLoading && filtered.length
-					? filtered.map((vol) => (
-							<div key={vol._id} className="border rounded-lg p-4 shadow flex flex-col">
-								<div className="flex items-center justify-between mb-2">
-									<div className="flex items-center space-x-4">
-										<Avatar className="h-12 w-12">
-											{vol.profilePicture ? (
-												<AvatarImage src={vol.profilePicture} alt={vol.name} />
-											) : (
-												<AvatarFallback>{vol.name.charAt(0).toUpperCase()}</AvatarFallback>
-											)}
-										</Avatar>
+				{!isLoading &&
+					filtered.map((vol) => (
+						<div key={vol._id} className="border rounded-lg p-4 shadow flex flex-col">
+							<div className="flex items-center justify-between mb-2">
+								<div className="flex items-center space-x-4">
+									<Avatar className="h-12 w-12">
+										{vol.profilePicture ? (
+											<AvatarImage src={vol.profilePicture} alt={vol.name} />
+										) : (
+											<AvatarFallback>{vol.name.charAt(0).toUpperCase()}</AvatarFallback>
+										)}
+									</Avatar>
+									<div>
 										<h2 className="text-lg font-semibold">{vol.name}</h2>
+										<p className="text-sm text-gray-600">Idade: {vol.birthDate ? calculateAge(vol.birthDate) : '—'}</p>
 									</div>
-									<Link to={`/volunteers/${vol._id}`}>
-										<Eye className="h-6 w-6 text-blue-600 hover:text-blue-800" />
-									</Link>
 								</div>
-								<p className="text-sm">
-									<strong>CPF:</strong> {vol.cpf ?? '—'}
-								</p>
-								<p className="text-sm">
-									<strong>Contato:</strong> {vol.contact ?? '—'}
-								</p>
-								<p className="text-sm">
-									<strong>Nascimento:</strong>{' '}
-									{vol.birthDate ? new Date(vol.birthDate).toLocaleDateString('pt-BR') : '—'}
-								</p>
-								<p className="text-sm text-gray-500 mt-2">
-									Cadastrado em:{' '}
-									{new Date(vol.createdAt).toLocaleString('pt-BR', {
-										day: '2-digit',
-										month: '2-digit',
-										year: 'numeric',
-										hour: '2-digit',
-										minute: '2-digit',
-									})}
-								</p>
+								<div className="flex items-center gap-2">
+									<Link to={`/voluntarios/${vol._id}`}>
+										<Eye className="h-6 w-6 text-primary hover:text-primary-dark  cursor-pointer" />
+									</Link>
+									<button
+										onClick={() => remove(vol._id)}
+										disabled={isDeleting}
+										className="p-1 rounded hover:bg-red-100  cursor-pointer"
+									>
+										<Trash className="h-6 w-6 text-red-600 hover:text-red-800" />
+									</button>
+								</div>
 							</div>
-						))
-					: null}
+							<p className="text-sm">
+								<strong>CPF:</strong> {vol.cpf ?? '—'}
+							</p>
+							<p className="text-sm">
+								<strong>Contato:</strong> {vol.contact ?? '—'}
+							</p>
+							<p className="text-sm">
+								<strong>Nascimento:</strong> {vol.birthDate ? new Date(vol.birthDate).toLocaleDateString('pt-BR') : '—'}
+							</p>
+							<p className="text-sm text-gray-500 mt-2">
+								Cadastrado em:{' '}
+								{new Date(vol.createdAt).toLocaleString('pt-BR', {
+									day: '2-digit',
+									month: '2-digit',
+									year: 'numeric',
+									hour: '2-digit',
+									minute: '2-digit',
+								})}
+							</p>
+						</div>
+					))}
 
-				{!isLoading && !filtered.length && (
+				{!isLoading && filtered.length === 0 && (
 					<div className="text-center text-gray-500 py-4">Nenhum voluntário encontrado.</div>
 				)}
 			</div>
