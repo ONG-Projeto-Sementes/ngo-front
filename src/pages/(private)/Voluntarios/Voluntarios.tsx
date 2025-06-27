@@ -90,7 +90,7 @@ export default function Voluntarios() {
 			</div>
 
 			{isError && (
-				<div className="text-red-500">
+				<div className="text-red-500 my-4">
 					<p>Erro ao carregar voluntários: {(error as Error).message}</p>
 					<Button onClick={() => refetch()}>Tentar novamente</Button>
 				</div>
@@ -181,7 +181,7 @@ export default function Voluntarios() {
 			</div>
 
 			{/* Mobile */}
-			<div className="flex flex-col gap-4 md:hidden">
+			<div className="flex flex-col gap-4 md:hidden bg-white">
 				{!isLoading &&
 					filtered.map((vol) => (
 						<div key={vol._id} className="border rounded-lg p-4 shadow flex flex-col">
@@ -195,11 +195,11 @@ export default function Voluntarios() {
 										)}
 									</Avatar>
 									<div>
-										<h2 className="text-lg font-semibold">{vol.name}</h2>
+										<h2 className="text-sm font-semibold">{vol.name}</h2>
 										<p className="text-sm text-gray-600">Idade: {vol.birthDate ? calculateAge(vol.birthDate) : '—'}</p>
 									</div>
 								</div>
-								<div className="flex items-center gap-2">
+								<div className="flex flex-col items-center gap-2">
 									<Link to={`/voluntarios/${vol._id}`}>
 										<Eye className="h-6 w-6 text-primary hover:text-primary-dark  cursor-pointer" />
 									</Link>

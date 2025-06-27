@@ -8,6 +8,7 @@ import logoutService from '@/services/auth/logout';
 import { isAuthenticated } from '@/services/auth/authentication';
 import type { AuthenticatedUser } from '@/services/auth/authentication';
 import type { LoginRequest, LoginResponse } from '@/services/auth/login';
+import usePathName from '@/helpers/usePathName';
 
 interface AuthContextType {
 	user: AuthenticatedUser | null;
@@ -22,9 +23,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
+	const pathName = usePathName();
 
 	const { data: user, isLoading } = useQuery<AuthenticatedUser | null, Error>({
-		queryKey: ['auth', 'me'],
+		queryKey: ['auth', 'me', pathName],
 		queryFn: async () => {
 			try {
 				return await isAuthenticated();
@@ -32,9 +34,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				return null;
 			}
 		},
-		staleTime: Infinity,
-		gcTime: Infinity,
-		refetchOnWindowFocus: false,
+		refetchOnWindowFocus: true,
+		staleTime: 0,
+		gcTime: 0,
 	});
 
 	const loginMutation = useMutation<LoginResponse, Error, LoginRequest>({
