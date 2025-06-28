@@ -2,6 +2,7 @@ import Header from '@/components/Header';
 import { ERoutes } from '@/types/ERoutes';
 import { useParams } from 'react-router-dom';
 import Breadcrumbs from '@/components/Breadcrumbs';
+import EditBeneficiaryForm from './_components/EditBeneficiaryForm';
 
 export default function EditBeneficiaryPage() {
   const { familyId, beneficiaryId } = useParams<{ familyId: string; beneficiaryId: string }>();
@@ -20,17 +21,7 @@ export default function EditBeneficiaryPage() {
         ]}
       />
 
-      <div className="bg-white border border-gray-200 rounded-lg p-6 mt-4">
-        <div className="text-center py-8">
-          <h3 className="text-lg font-semibold mb-2">Página em Desenvolvimento</h3>
-          <p className="text-gray-600 mb-4">
-            Esta página será implementada para editar o beneficiário ID: <strong>{beneficiaryId}</strong>
-          </p>
-          <p className="text-sm text-gray-500">
-            Família ID: {familyId}
-          </p>
-        </div>
-      </div>
+      <EditBeneficiaryForm familyId={familyId} beneficiaryId={beneficiaryId} />
     </div>
   );
 }

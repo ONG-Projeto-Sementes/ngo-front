@@ -18,10 +18,8 @@ export default function FamilyBeneficiariesSection({ familyId }: Props) {
     navigate(`/familias/${familyId}/beneficiarios/${beneficiaryId}/editar`);
   };
 
-  const handleDeleteBeneficiary = (beneficiaryId: string, beneficiaryName: string) => {
-    if (window.confirm(`Tem certeza que deseja excluir o beneficiário "${beneficiaryName}"?`)) {
-      deleteBeneficiary(beneficiaryId);
-    }
+  const handleDeleteBeneficiary = (beneficiaryId: string) => {
+    deleteBeneficiary(beneficiaryId);
   };
 
   if (isLoading) {
@@ -88,7 +86,7 @@ export default function FamilyBeneficiariesSection({ familyId }: Props) {
                     variant="ghost"
                     size="sm"
                     className="h-8 w-8 p-0 text-red-600 hover:text-red-800 hover:bg-red-50"
-                    onClick={() => handleDeleteBeneficiary(beneficiary._id, beneficiary.name)}
+                    onClick={() => handleDeleteBeneficiary(beneficiary._id)}
                     disabled={isDeleting}
                     title="Excluir beneficiário"
                   >
