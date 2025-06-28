@@ -5,9 +5,16 @@ type UseQueryParams<R, F = unknown> = {
 	service: (filters?: F) => Promise<R>;
 	autoStart?: boolean;
 	queryHash?: string;
+	refetchInterval?: number;
 };
 
-function useQuery<R, F = unknown>({ queryKey, service, autoStart = true, queryHash }: UseQueryParams<R, F>) {
+function useQuery<R, F = unknown>({
+	queryKey,
+	service,
+	autoStart = true,
+	queryHash,
+	refetchInterval = 0,
+}: UseQueryParams<R, F>) {
 	const { isLoading, data, refetch, isSuccess, isError, error } = reactUseQuery<R, Error>({
 		queryKey,
 		queryHash,
@@ -17,6 +24,7 @@ function useQuery<R, F = unknown>({ queryKey, service, autoStart = true, queryHa
 		},
 		enabled: autoStart,
 		gcTime: 0,
+		refetchInterval,
 	});
 
 	return { isLoading, data, isSuccess, isError, error, refetch };

@@ -13,9 +13,9 @@ export interface FamilyDTO {
   updatedAt: string;
 }
 
-export async function getFamilies(): Promise<FamilyDTO[]> {
+export async function getFamiliesById(id: string): Promise<FamilyDTO> {
   try {
-    return await apiClient.get<FamilyDTO[]>('/families');
+    return await apiClient.get<FamilyDTO>(`/families/${id}`);
   } catch (err) {
     const axiosErr = err as RequestError<{ message?: string }>;
     if (axiosErr.response?.data?.message) {
@@ -25,4 +25,4 @@ export async function getFamilies(): Promise<FamilyDTO[]> {
   }
 }
 
-export default getFamilies;
+export default getFamiliesById;

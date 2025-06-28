@@ -3,15 +3,15 @@ import { ERoutes } from '@/types/ERoutes';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import RegisterForm from './_components/RegisterForm';
 
-export default function Cadastrar() {
+export default function CreateFamilyPage() {
   return (
     <div className="p-4">
-      <Header title="Cadastro de Voluntário" />
+      <Header title="Cadastro de Família" />
       <Breadcrumbs
         routes={[
           { label: 'Início', to: ERoutes.Inicio },
-          { label: 'Voluntários', to: ERoutes.Voluntarios },
-          { label: 'Cadastrar', to: ERoutes.VoluntariosCadastro },
+          { label: 'Famílias', to: ERoutes.Familias },
+          { label: 'Cadastrar', to: ERoutes.FamiliasCriar },
         ]}
       />
 

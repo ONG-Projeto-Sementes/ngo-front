@@ -1,7 +1,15 @@
 import apiClient from '@/helpers/request';
 import type { RequestError } from '@/helpers/request';
 
-export interface FamilyDTO {
+export interface FamilyPayload {
+  name: string;
+  city: string;
+  neighborhood: string;
+  address: string;
+  contact: string;
+}
+
+export interface FamilyResponse {
   _id: string;
   name: string;
   city: string;
@@ -13,9 +21,15 @@ export interface FamilyDTO {
   updatedAt: string;
 }
 
-export async function getFamilies(): Promise<FamilyDTO[]> {
+export async function putFamilies(
+  id: string,
+  payload: FamilyPayload
+): Promise<FamilyResponse> {
   try {
-    return await apiClient.get<FamilyDTO[]>('/families');
+    return await apiClient.put<FamilyResponse, FamilyPayload>(
+      `/families/${id}`,
+      payload
+    );
   } catch (err) {
     const axiosErr = err as RequestError<{ message?: string }>;
     if (axiosErr.response?.data?.message) {
@@ -25,4 +39,4 @@ export async function getFamilies(): Promise<FamilyDTO[]> {
   }
 }
 
-export default getFamilies;
+export default putFamilies;

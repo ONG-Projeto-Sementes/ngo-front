@@ -4,22 +4,22 @@ import { useParams } from 'react-router-dom';
 import EditForm from './_components/EditForm';
 import Breadcrumbs from '@/components/Breadcrumbs';
 
-export default function Edicao() {
+export default function EditFamilyPage() {
   const { id } = useParams<'id'>();
   if (!id) return null;
 
   return (
     <div className="p-4">
-      <Header title="Editar Voluntário" />
+      <Header title="Editar Família" />
       <Breadcrumbs
         routes={[
           { label: 'Início', to: ERoutes.Inicio },
-          { label: 'Voluntários', to: ERoutes.Voluntarios },
-          { label: 'Editar', to: `${ERoutes.VoluntariosEdicao}/${id}` },
+          { label: 'Famílias', to: ERoutes.Familias },
+          { label: 'Editar', to: `${ERoutes.FamiliasEditar}/${id}` },
         ]}
       />
 
-      <EditForm volunteerId={id} />
+      <EditForm familyId={id} />
     </div>
   );
 }
