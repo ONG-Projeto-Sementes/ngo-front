@@ -15,10 +15,11 @@ export default function useRegisterFamily(form: UseFormReturn<FamilyPayload>) {
       onError: (error: Error) => {
         toast.error(error.message || 'Erro ao cadastrar família.');
       },
-      onSuccess: () => {
+      onSuccess: (data) => {
         toast.success('Família cadastrada com sucesso!');
         queryClient.invalidateQueries({ queryKey: ['families'] });
-        navigate('/familias');
+        // Redireciona para a página de beneficiários da família recém-criada
+        navigate(`/familias/${data._id}/beneficiarios`);
         form.reset();
       },
     }

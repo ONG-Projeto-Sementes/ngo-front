@@ -73,8 +73,14 @@ export default function RegisterForm() {
             </div>
           </div>
 
-          {/* CARD PEQUENO: Botão Cadastrar */}
-          <div className="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-center lg:w-80">
+            {/* CARD PEQUENO: Botão Cadastrar */}
+          <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-4 lg:w-80">
+            <div className="text-center">
+              <h4 className="font-medium text-gray-900">Próximos Passos</h4>
+              <p className="text-sm text-gray-600 mt-1">
+                Após cadastrar a família, você será direcionado para adicionar os beneficiários.
+              </p>
+            </div>
             <Button type="submit" className="w-full" disabled={isPending}>
               {isPending ? 'Enviando...' : 'Cadastrar Família'}
             </Button>

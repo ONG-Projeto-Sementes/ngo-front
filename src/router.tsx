@@ -17,6 +17,8 @@ const Eventos = lazy(() => import('@/pages/(private)/Eventos/Eventos'));
 const Familias = lazy(() => import('@/pages/(private)/Familias/Familias'));
 const FamiliasCreate = lazy(() => import('@/pages/(private)/Familias/Criar/Criar'));
 const FamiliasEdit = lazy(() => import('@/pages/(private)/Familias/Editar/Editar'));
+const FamiliasBeneficiarios = lazy(() => import('@/pages/(private)/Familias/Beneficiarios/Beneficiarios'));
+const FamiliasEditarBeneficiario = lazy(() => import('@/pages/(private)/Familias/EditarBeneficiario/EditarBeneficiario'));
 const Recebimentos = lazy(() => import('@/pages/(private)/Recebimentos/Recebimentos'));
 const VoluntariosList = lazy(() => import('@/pages/(private)/Voluntarios/Voluntarios'));
 const VoluntariosEdit = lazy(() => import('@/pages/(private)/Voluntarios/Edicao/Edicao'));
@@ -65,6 +67,8 @@ export default function AppRouter() {
           <Route path={ERoutes.Familias} element={<Familias />} />
           <Route path={ERoutes.FamiliasCriar} element={<FamiliasCreate />} />
           <Route path={`${ERoutes.FamiliasEditar}/:id`} element={<FamiliasEdit />} />
+          <Route path="/familias/:id/beneficiarios" element={<FamiliasBeneficiarios />} />
+          <Route path="/familias/:familyId/beneficiarios/:beneficiaryId/editar" element={<FamiliasEditarBeneficiario />} />
 
           <Route path={ERoutes.Recebimentos} element={<Recebimentos />} />
         </Route>

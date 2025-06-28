@@ -1,16 +1,14 @@
 import { z } from 'zod';
-import { User, ChevronLeft } from 'lucide-react';
-import { useRef, useState, useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Link } from 'react-router-dom';
+import { User } from 'lucide-react';
 import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { useRef, useState, useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useEditVolunteer, type VolunteerEditFormValues } from '../_hooks/useEditVolunteer';
-import { ERoutes } from '@/types/ERoutes';
 
 const volunteerSchema = z.object({
   name: z.string().nonempty('Nome é obrigatório'),
@@ -71,13 +69,6 @@ export default function EditForm({ volunteerId }: Props) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-4">
-        <div className="flex items-center mb-4">
-          <Link to={ERoutes.Voluntarios} className="p-2 rounded hover:bg-gray-100 transition">
-            <ChevronLeft className="h-5 w-5" />
-          </Link>
-          <h2 className="ml-2 text-2xl font-semibold">Editar Voluntário</h2>
-        </div>
-
         <div className="flex flex-col lg:flex-row gap-4">
           {/* Campos de texto */}
           <div className="flex-1 bg-white border border-gray-200 rounded-lg p-6 space-y-4">
