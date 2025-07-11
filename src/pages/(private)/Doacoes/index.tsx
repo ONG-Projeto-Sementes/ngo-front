@@ -1,32 +1,46 @@
-import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Package, DollarSign, Users, TrendingUp, Plus, Settings } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Package, 
+  DollarSign, 
+  Users, 
+  TrendingUp, 
+  Plus,
+  List,
+  BarChart3,
+  Settings
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { ERoutes } from '@/types/ERoutes';
+
+// Mock data para demonstração
+const mockStats = {
+  totalDonations: 156,
+  totalValue: 45230.50,
+  totalDonors: 89,
+  thisMonthGrowth: 12.5,
+  pendingDonations: 8,
+  recentDonations: [
+    { id: '1', donor: 'Maria Silva', value: 250.00, category: 'Alimentos', date: '2024-01-15' },
+    { id: '2', donor: 'João Santos', value: 180.00, category: 'Roupas', date: '2024-01-14' },
+    { id: '3', donor: 'Ana Costa', value: 320.00, category: 'Brinquedos', date: '2024-01-13' },
+    { id: '4', donor: 'Pedro Lima', value: 150.00, category: 'Material Escolar', date: '2024-01-12' },
+    { id: '5', donor: 'Carla Oliveira', value: 200.00, category: 'Higiene', date: '2024-01-11' },
+  ]
+};
+
+const mockCategories = [
+  { id: '1', name: 'Alimentos', count: 45, color: 'bg-green-100 text-green-800' },
+  { id: '2', name: 'Roupas', count: 32, color: 'bg-blue-100 text-blue-800' },
+  { id: '3', name: 'Brinquedos', count: 28, color: 'bg-purple-100 text-purple-800' },
+  { id: '4', name: 'Material Escolar', count: 25, color: 'bg-orange-100 text-orange-800' },
+  { id: '5', name: 'Higiene', count: 20, color: 'bg-pink-100 text-pink-800' },
+  { id: '6', name: 'Medicamentos', count: 6, color: 'bg-red-100 text-red-800' },
+];
 
 export default function DoacoesDashboard() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('overview');
-
-  // Mock data - em um caso real, isso viria dos hooks/APIs
-  const stats = {
-    totalDonations: 245,
-    totalValue: 45250.75,
-    totalDonors: 89,
-    pendingCount: 12,
-    receivedCount: 156,
-    distributedCount: 77,
-    pendingValue: 5200.30,
-    receivedValue: 28450.20,
-    distributedValue: 11600.25,
-  };
-
-  const recentDonations = [
-    { id: '1', donorName: 'Maria Silva', description: 'Roupas infantis', value: 150.00, status: 'pending' },
-    { id: '2', donorName: 'João Santos', description: 'Alimentos não perecíveis', value: 89.50, status: 'received' },
-    { id: '3', donorName: 'Ana Costa', description: 'Brinquedos educativos', value: 245.00, status: 'distributed' },
-  ];
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -35,212 +49,202 @@ export default function DoacoesDashboard() {
     }).format(value);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'received': return 'bg-blue-100 text-blue-800';
-      case 'distributed': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'pending': return 'Pendente';
-      case 'received': return 'Recebida';
-      case 'distributed': return 'Distribuída';
-      default: return status;
-    }
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('pt-BR');
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      {/* Header */}
+      <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Doações</h1>
           <p className="text-muted-foreground">
-            Gerencie e acompanhe todas as doações da organização
+            Gerencie e acompanhe todas as doações recebidas
           </p>
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            onClick={() => navigate('/doacoes/categorias')}
-          >
-            <Settings className="h-4 w-4 mr-2" />
-            Categorias
-          </Button>
-          <Button onClick={() => navigate('/doacoes/criar')}>
+          <Button onClick={() => navigate(ERoutes.DoacoesCriar)}>
             <Plus className="h-4 w-4 mr-2" />
             Nova Doação
           </Button>
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-          <TabsTrigger value="donations">Doações</TabsTrigger>
-          <TabsTrigger value="categories">Categorias</TabsTrigger>
-        </TabsList>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total de Doações</CardTitle>
+            <Package className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{mockStats.totalDonations}</div>
+            <p className="text-xs text-muted-foreground">
+              {mockStats.pendingDonations} pendentes
+            </p>
+          </CardContent>
+        </Card>
 
-        <TabsContent value="overview" className="space-y-6">
-          {/* Statistics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total de Doações</CardTitle>
-                <Package className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.totalDonations}</div>
-                <p className="text-xs text-muted-foreground">
-                  {stats.totalDonors} doadores únicos
-                </p>
-              </CardContent>
-            </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Valor Total</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatCurrency(mockStats.totalValue)}</div>
+            <p className="text-xs text-muted-foreground">
+              Valor estimado das doações
+            </p>
+          </CardContent>
+        </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Valor Total</CardTitle>
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{formatCurrency(stats.totalValue)}</div>
-                <p className="text-xs text-muted-foreground">
-                  Valor estimado total
-                </p>
-              </CardContent>
-            </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Doadores</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{mockStats.totalDonors}</div>
+            <p className="text-xs text-muted-foreground">
+              Doadores únicos
+            </p>
+          </CardContent>
+        </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Pendentes</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.pendingCount}</div>
-                <p className="text-xs text-muted-foreground">
-                  {formatCurrency(stats.pendingValue)}
-                </p>
-              </CardContent>
-            </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Crescimento</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">+{mockStats.thisMonthGrowth}%</div>
+            <p className="text-xs text-muted-foreground">
+              Comparado ao mês anterior
+            </p>
+          </CardContent>
+        </Card>
+      </div>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Distribuídas</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.distributedCount}</div>
-                <p className="text-xs text-muted-foreground">
-                  {formatCurrency(stats.distributedValue)}
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+      {/* Action Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate(ERoutes.DoacoesAdmin)}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <List className="h-5 w-5" />
+              Administrar Doações
+            </CardTitle>
+            <CardDescription>
+              Visualize, edite e gerencie todas as doações recebidas
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="ghost" className="w-full justify-start">
+              Acessar administração
+            </Button>
+          </CardContent>
+        </Card>
 
-          {/* Recent Donations */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Doações Recentes</CardTitle>
-              <CardDescription>
-                Últimas doações registradas no sistema
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {recentDonations.map((donation) => (
-                  <div key={donation.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex-1">
-                      <h4 className="font-medium">{donation.donorName}</h4>
-                      <p className="text-sm text-muted-foreground">{donation.description}</p>
-                    </div>
-                    <div className="text-right mr-4">
-                      <div className="font-medium">{formatCurrency(donation.value)}</div>
-                    </div>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(donation.status)}`}>
-                      {getStatusLabel(donation.status)}
-                    </span>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate(ERoutes.DoacoesAnalytics)}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5" />
+              Analytics de Doações
+            </CardTitle>
+            <CardDescription>
+              Acompanhe estatísticas e insights detalhados
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="ghost" className="w-full justify-start">
+              Ver analytics completo
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate(ERoutes.DoacoesCategorias)}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Settings className="h-5 w-5" />
+              Categorias
+            </CardTitle>
+            <CardDescription>
+              Configure as categorias de doações
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="ghost" className="w-full justify-start">
+              Gerenciar categorias
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Recent Donations */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Doações Recentes</CardTitle>
+            <CardDescription>
+              Últimas 5 doações recebidas
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {mockStats.recentDonations.map((donation) => (
+                <div key={donation.id} className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">{donation.donor}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {donation.category} • {formatDate(donation.date)}
+                    </p>
                   </div>
-                ))}
-              </div>
-              <div className="mt-4 pt-4 border-t">
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => navigate('/doacoes/lista')}
-                >
-                  Ver Todas as Doações
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+                  <Badge variant="outline">
+                    {formatCurrency(donation.value)}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+            <Button 
+              variant="ghost" 
+              className="w-full mt-4"
+              onClick={() => navigate(ERoutes.DoacoesAdmin)}
+            >
+              Ver todas
+            </Button>
+          </CardContent>
+        </Card>
 
-          {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/doacoes/criar')}>
-              <CardContent className="flex flex-col items-center justify-center p-6">
-                <Plus className="h-8 w-8 text-primary mb-2" />
-                <h3 className="font-medium mb-1">Registrar Doação</h3>
-                <p className="text-sm text-muted-foreground text-center">
-                  Cadastre uma nova doação recebida
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/doacoes/lista')}>
-              <CardContent className="flex flex-col items-center justify-center p-6">
-                <Package className="h-8 w-8 text-primary mb-2" />
-                <h3 className="font-medium mb-1">Gerenciar Doações</h3>
-                <p className="text-sm text-muted-foreground text-center">
-                  Visualizar e editar doações existentes
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/doacoes/categorias')}>
-              <CardContent className="flex flex-col items-center justify-center p-6">
-                <Settings className="h-8 w-8 text-primary mb-2" />
-                <h3 className="font-medium mb-1">Configurar Categorias</h3>
-                <p className="text-sm text-muted-foreground text-center">
-                  Gerenciar categorias de doações
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="donations">
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-16">
-              <Package className="h-16 w-16 text-muted-foreground mb-4" />
-              <CardTitle className="mb-2">Lista de Doações</CardTitle>
-              <CardDescription className="text-center mb-4">
-                Acesse a página completa de gerenciamento de doações
-              </CardDescription>
-              <Button onClick={() => navigate('/doacoes/lista')}>
-                Ver Lista Completa
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="categories">
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-16">
-              <Settings className="h-16 w-16 text-muted-foreground mb-4" />
-              <CardTitle className="mb-2">Gerenciar Categorias</CardTitle>
-              <CardDescription className="text-center mb-4">
-                Configure as categorias para organizar suas doações
-              </CardDescription>
-              <Button onClick={() => navigate('/doacoes/categorias')}>
-                Gerenciar Categorias
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+        {/* Categories Overview */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Categorias</CardTitle>
+            <CardDescription>
+              Distribuição das doações por categoria
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {mockCategories.map((category) => (
+                <div key={category.id} className="flex items-center justify-between">
+                  <span className="font-medium">{category.name}</span>
+                  <Badge className={category.color}>
+                    {category.count} doações
+                  </Badge>
+                </div>
+              ))}
+            </div>
+            <Button 
+              variant="ghost" 
+              className="w-full mt-4"
+              onClick={() => navigate(ERoutes.DoacoesCategorias)}
+            >
+              Gerenciar categorias
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

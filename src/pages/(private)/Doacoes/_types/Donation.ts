@@ -63,16 +63,9 @@ export interface DonationStats {
 export interface DonationStatsByCategory {
   categoryId: string;
   categoryName: string;
-  categoryInfo?: {
-    _id: string;
-    name: string;
-    defaultUnit: string;
-    color?: string;
-    icon?: string;
-  };
   totalDonations: number;
   totalValue: number;
-  totalQuantity: number;
+  percentage: number;
 }
 
 export interface GetDonationsParams {
@@ -90,12 +83,11 @@ export interface DonationFormData {
   donorName: string;
   donorContact?: string;
   categoryId: string;
-  status?: 'pending' | 'received' | 'distributed' | 'expired';
   quantity: number;
   unit: string;
-  estimatedValue?: number;
-  receivedDate?: string;
   description?: string;
-  images?: string[];
+  estimatedValue?: number;
+  receivedDate: string;
+  status: 'pending' | 'received' | 'distributed' | 'expired';
   notes?: string;
 }

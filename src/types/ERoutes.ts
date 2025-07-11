@@ -14,6 +14,8 @@ export const ERoutes = {
   DoacoesCriar: '/doacoes/criar',
   DoacoesEditar: '/doacoes/editar',
   DoacoesEstatisticas: '/doacoes/estatisticas',
+  DoacoesAnalytics: '/analytics',
+  DoacoesAdmin: '/admin-doacoes',
   // Rotas de Categorias de Doações
   DoacoesCategorias: '/doacoes/categorias',
   DoacoesCategoriasLista: '/doacoes/categorias/lista',

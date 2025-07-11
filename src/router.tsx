@@ -24,10 +24,12 @@ const VoluntariosCreate = lazy(() => import('@/pages/(private)/Voluntarios/Cadas
 
 // Donations pages
 const Doacoes = lazy(() => import('@/pages/(private)/Doacoes/index'));
-const DoacoesLista = lazy(() => import('@/pages/(private)/Doacoes/Lista/Lista'));
-const DoacoesCriar = lazy(() => import('@/pages/(private)/Doacoes/Criar/index'));
+const DoacoesLista = lazy(() => import('@/pages/(private)/Doacoes/Lista'));
+const DoacoesCriar = lazy(() => import('@/pages/(private)/Doacoes/Criar'));
 const DoacoesCategorias = lazy(() => import('@/pages/(private)/Doacoes/Categorias/Categorias'));
-const DoacoesEstatisticas = lazy(() => import('@/pages/(private)/Doacoes/Estatisticas/Estatisticas'));
+const DoacoesEstatisticas = lazy(() => import('@/pages/(private)/Doacoes/Estatisticas'));
+const Analytics = lazy(() => import('@/pages/(private)/Doacoes/Analytics'));
+const AdminDoacoes = lazy(() => import('@/pages/(private)/Doacoes/AdminDoacoes'));
 
 export default function AppRouter() {
   return (
@@ -82,6 +84,8 @@ export default function AppRouter() {
           <Route path={`${ERoutes.DoacoesEditar}/:id`} element={<DoacoesCriar />} />
           <Route path={ERoutes.DoacoesCategorias} element={<DoacoesCategorias />} />
           <Route path={ERoutes.DoacoesEstatisticas} element={<DoacoesEstatisticas />} />
+          <Route path={ERoutes.DoacoesAnalytics} element={<Analytics />} />
+          <Route path={ERoutes.DoacoesAdmin} element={<AdminDoacoes />} />
         </Route>
 
         {/* Fallback for unmatched */}
