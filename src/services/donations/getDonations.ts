@@ -15,6 +15,9 @@ export async function getDonations(params?: GetDonationsParams): Promise<Donatio
     if (params?.startDate) queryParams.append('startDate', params.startDate);
     if (params?.endDate) queryParams.append('endDate', params.endDate);
     
+    // Adicionar populate para carregar a categoria
+    queryParams.append('populate', 'categoryId');
+    
     const queryString = queryParams.toString();
     const url = queryString ? `/donations?${queryString}` : '/donations';
     

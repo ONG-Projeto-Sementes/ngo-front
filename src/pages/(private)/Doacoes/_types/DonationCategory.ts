@@ -1,7 +1,7 @@
 export interface DonationCategory {
   _id: string;
   name: string;
-  description: string;
+  description?: string;
   defaultUnit: string;
   icon?: string;
   color?: string;
@@ -13,15 +13,31 @@ export interface DonationCategory {
 
 export interface DonationCategoryPayload {
   name: string;
-  description: string;
+  description?: string;
   defaultUnit: string;
   icon?: string;
   color?: string;
   isActive?: boolean;
 }
 
+export interface DonationCategoryFormValues {
+  name: string;
+  description: string;
+  defaultUnit: string;
+  icon: string;
+  color: string;
+  isActive: boolean;
+}
+
+export interface GetDonationCategoriesParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  isActive?: boolean;
+}
+
 export interface DonationCategoriesResponse {
-  message?: string;
+  message: string;
   data: {
     data: DonationCategory[];
     total: number;
@@ -29,10 +45,4 @@ export interface DonationCategoriesResponse {
     currentPage: number;
     limit: number;
   };
-}
-
-export interface GetDonationCategoriesParams {
-  page?: number;
-  limit?: number;
-  search?: string;
 }

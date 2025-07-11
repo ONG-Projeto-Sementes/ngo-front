@@ -151,7 +151,7 @@
 
 @layer base {
 	body {
-		@apply font-sans text-base leading-relaxed text-secondary-foreground min-h-screen bg-fixed;
+		@apply font-sans text-base leading-relaxed text-secondary-foreground min-h-screen;
 		background: linear-gradient(to bottom, #ffffff 0%, #ffffff 5%, #ffdeff 100%);
 	}
 

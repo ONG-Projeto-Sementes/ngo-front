@@ -23,7 +23,8 @@ export default function CategoriasDoacoes() {
     search: search || undefined,
   });
 
-  const categories = categoriesResponse?.data?.data || [];
+  // A resposta da API tem a estrutura: { data: { data: [...], total: 4, ... } }
+  const categories = Array.isArray(categoriesResponse?.data?.data) ? categoriesResponse.data.data : [];
 
   const createMutation = useCreateDonationCategory();
   const updateMutation = useUpdateDonationCategory();
@@ -96,8 +97,8 @@ export default function CategoriasDoacoes() {
         <div className="flex items-center gap-2">
           <div className="text-sm text-muted-foreground">
             {categories.length} categoria{categories.length !== 1 ? 's' : ''} 
-            {categories.filter(c => c.isActive).length !== categories.length && 
-              ` • ${categories.filter(c => c.isActive).length} ativa${categories.filter(c => c.isActive).length !== 1 ? 's' : ''}`
+            {Array.isArray(categories) && categories.filter((c: DonationCategory) => c.isActive).length !== categories.length && 
+              ` • ${Array.isArray(categories) ? categories.filter((c: DonationCategory) => c.isActive).length : 0} ativa${Array.isArray(categories) && categories.filter((c: DonationCategory) => c.isActive).length !== 1 ? 's' : ''}`
             }
           </div>
         </div>
@@ -145,7 +146,7 @@ export default function CategoriasDoacoes() {
         </div>
       ) : categories.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {categories.map((category: DonationCategory) => (
+          {Array.isArray(categories) && categories.map((category: DonationCategory) => (
             <DonationCategoryCard
               key={category._id}
               category={category}

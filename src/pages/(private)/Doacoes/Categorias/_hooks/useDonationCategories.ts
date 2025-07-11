@@ -8,5 +8,6 @@ export const useDonationCategories = (params?: GetDonationCategoriesParams) => {
     queryFn: () => getDonationCategories(params),
     staleTime: 1000 * 60 * 5, // 5 minutes
     retry: 3,
+    throwOnError: false,
   });
 };

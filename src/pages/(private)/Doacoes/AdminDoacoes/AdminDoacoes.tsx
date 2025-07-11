@@ -1,544 +1,298 @@
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Loader2, Package } from 'lucide-react';
+import { DonationFilters } from './_components/DonationFilters';
+import { DonationCard } from './_components/DonationCard';
+import { DonationFormDialog } from './_components/DonationFormDialog';
+import { DistributionManagementDialog } from './_components/DistributionManagementDialogNew';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Search, Plus, Edit, Trash2, Eye, MoreHorizontal, Package } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from 'sonner';
-import { ERoutes } from '@/types/ERoutes';
-
-// Importar hooks
-// import { useDonations } from '../_hooks/useDonations';
-import { useCreateDonation } from '../_hooks/useCreateDonation';
-
-// Importar tipos
+import { Card, CardContent } from '@/components/ui/card';
+import useGetDonations from './_hooks/useGetDonations';
+import useCreateDonation from './_hooks/useCreateDonation';
+import useUpdateDonation from './_hooks/useUpdateDonation';
+import useDeleteDonation from './_hooks/useDeleteDonation';
+import useUpdateDonationStatus from './_hooks/useUpdateDonationStatus';
 import type { Donation, GetDonationsParams } from '../_types/Donation';
-import type { DonationCategory } from '../_types/DonationCategory';
-
-// Importar schema
-import { donationSchema, type DonationFormData } from '../_schemas/donation.schema';
-
-// Mock data para categorias (será substituído por hook)
-const mockCategories: DonationCategory[] = [
-  { _id: '1', name: 'Alimentos', description: 'Produtos alimentícios', defaultUnit: 'kg', icon: '🍎', color: '#22c55e', isActive: true, deleted: false, createdAt: '', updatedAt: '' },
-  { _id: '2', name: 'Roupas', description: 'Vestuário em geral', defaultUnit: 'peças', icon: '👕', color: '#3b82f6', isActive: true, deleted: false, createdAt: '', updatedAt: '' },
-  { _id: '3', name: 'Brinquedos', description: 'Brinquedos e jogos', defaultUnit: 'unidades', icon: '🧸', color: '#8b5cf6', isActive: true, deleted: false, createdAt: '', updatedAt: '' },
-];
-
-const statusConfig = {
-  pending: { label: 'Pendente', color: 'bg-yellow-100 text-yellow-800' },
-  received: { label: 'Recebida', color: 'bg-blue-100 text-blue-800' },
-  distributed: { label: 'Distribuída', color: 'bg-green-100 text-green-800' },
-  expired: { label: 'Expirada', color: 'bg-red-100 text-red-800' },
-};
+import type { DonationFormValues } from './_schemas/donationSchema';
 
 export default function AdminDoacoes() {
-  const navigate = useNavigate();
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [filters, setFilters] = useState<GetDonationsParams>({
     page: 1,
-    limit: 10,
+    limit: 12,
   });
+  
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isDistributionOpen, setIsDistributionOpen] = useState(false);
+  const [editingDonation, setEditingDonation] = useState<Donation | undefined>();
+  const [selectedDonation, setSelectedDonation] = useState<Donation | undefined>();
 
-  // Hooks para dados reais (comentados por enquanto para usar mock)
-  // const { data: donationsData, isLoading } = useDonations(filters);
-  const createDonationMutation = useCreateDonation();
+  const { data: donationsResponse, isLoading, error, refetch } = useGetDonations(filters);
+  const createDonation = useCreateDonation();
+  const updateDonation = useUpdateDonation(editingDonation?._id || '');
+  const deleteDonation = useDeleteDonation();
+  const updateStatus = useUpdateDonationStatus();
 
-  // Mock data para demonstração
-  const mockDonations: Donation[] = [
-    {
-      _id: '1',
-      donorName: 'Maria Silva',
-      donorContact: '(11) 99999-9999',
-      categoryId: '1',
-      quantity: 50,
-      unit: 'kg',
-      description: 'Arroz e feijão',
-      estimatedValue: 250.00,
-      receivedDate: '2024-01-15',
-      status: 'received',
-      deleted: false,
-      createdAt: '2024-01-15',
-      updatedAt: '2024-01-15'
-    },
-    {
-      _id: '2',
-      donorName: 'João Santos',
-      donorContact: '(11) 88888-8888',
-      categoryId: '2',
-      quantity: 20,
-      unit: 'peças',
-      description: 'Roupas infantis',
-      estimatedValue: 180.00,
-      receivedDate: '2024-01-14',
-      status: 'pending',
-      deleted: false,
-      createdAt: '2024-01-14',
-      updatedAt: '2024-01-14'
-    },
-  ];
+  // Debug logs
+  console.log('🔍 Current filters in AdminDoacoes:', filters);
+  console.log('📦 Donations Response:', donationsResponse);
+  console.log('⏳ Loading state:', isLoading);
+  console.log('❌ Error state:', error);
 
-  const form = useForm<DonationFormData>({
-    resolver: zodResolver(donationSchema),
-    defaultValues: {
-      donorName: '',
-      donorContact: '',
-      categoryId: '',
-      quantity: 0,
-      unit: '',
-      description: '',
-      estimatedValue: 0,
-      receivedDate: new Date().toISOString().split('T')[0],
-      status: 'pending',
-      notes: '',
-    },
-  });
+  const donations = Array.isArray(donationsResponse?.data?.data) ? donationsResponse.data.data : [];
+  const totalPages = donationsResponse?.data?.totalPages || 1;
+  const currentPage = donationsResponse?.data?.currentPage || 1;
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
+  console.log('Processed donations:', donations);
+  console.log('Total pages:', totalPages);
+  console.log('Current page:', currentPage);
+
+  const handleCreateNew = () => {
+    setEditingDonation(undefined);
+    setIsFormOpen(true);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR');
+  const handleEdit = (donation: Donation) => {
+    setEditingDonation(donation);
+    setIsFormOpen(true);
   };
 
-  const getCategoryName = (categoryId: string) => {
-    return mockCategories.find(cat => cat._id === categoryId)?.name || 'Categoria não encontrada';
-  };
-
-  const handleCreateDonation = async (data: DonationFormData) => {
+  const handleFormSubmit = async (values: DonationFormValues) => {
     try {
-      await createDonationMutation.mutateAsync(data);
-      toast.success('Doação criada com sucesso!');
-      setIsCreateDialogOpen(false);
-      form.reset();
+      if (editingDonation) {
+        await updateDonation.mutateAsync({ ...values });
+      } else {
+        await createDonation.mutateAsync(values);
+      }
+      setIsFormOpen(false);
+      setEditingDonation(undefined);
+      refetch();
     } catch (error) {
-      toast.error('Erro ao criar doação');
-      console.error(error);
+      console.error('Error submitting form:', error);
     }
   };
 
-  const handleCategoryChange = (categoryId: string) => {
-    const category = mockCategories.find(cat => cat._id === categoryId);
-    if (category) {
-      form.setValue('unit', category.defaultUnit);
+  const handleDelete = async (donationId: string) => {
+    try {
+      await deleteDonation.mutateAsync(donationId);
+      refetch();
+    } catch (error) {
+      console.error('Error deleting donation:', error);
     }
   };
 
-  const filteredDonations = mockDonations.filter(donation => {
-    const matchesSearch = !filters.search || 
-      donation.donorName.toLowerCase().includes(filters.search.toLowerCase()) ||
-      donation.description?.toLowerCase().includes(filters.search.toLowerCase());
-    
-    const matchesStatus = !filters.status || donation.status === filters.status;
-    const matchesCategory = !filters.categoryId || donation.categoryId === filters.categoryId;
-    
-    return matchesSearch && matchesStatus && matchesCategory;
-  });
+  const handleStatusChange = async (donationId: string, status: 'pending' | 'received' | 'distributed') => {
+    try {
+      await updateStatus.mutateAsync({ id: donationId, status });
+      refetch();
+    } catch (error) {
+      console.error('Error updating status:', error);
+    }
+  };
+
+  const handleManageDistributions = (donation: Donation) => {
+    setSelectedDonation(donation);
+    setIsDistributionOpen(true);
+  };
+
+  const handlePageChange = (page: number) => {
+    setFilters({ ...filters, page });
+  };
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="py-8">
+          <div className="text-center">
+            <p className="text-red-600 mb-4">Erro ao carregar doações</p>
+            <Button onClick={() => refetch()} variant="outline">
+              Tentar Novamente
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button 
-            variant="ghost" 
-            size="sm"
-            onClick={() => navigate(ERoutes.Doacoes)}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Voltar
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Administração de Doações</h1>
-            <p className="text-muted-foreground">
-              Gerencie todas as doações de forma detalhada
-            </p>
+    <div className="space-y-4 sm:space-y-6 lg:space-y-8">
+      {/* Header Section */}
+      <div className="bg-gradient-to-r from-pink-50 to-rose-50 rounded-xl p-4 sm:p-6 border border-pink-100">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+            <div className="p-2 sm:p-3 bg-pink-100 rounded-lg">
+              <Package className="h-6 w-6 sm:h-8 sm:w-8 text-pink-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+                Administração de Doações
+              </h2>
+              <p className="text-sm sm:text-base text-gray-600 mt-1">
+                Gerencie todas as doações recebidas e suas distribuições
+              </p>
+            </div>
+          </div>
+          <div className="flex justify-between items-center pt-2 border-t border-pink-200">
+            <span className="text-sm text-gray-500">Total de doações</span>
+            <span className="text-lg sm:text-2xl font-bold text-gray-900">{donations.length}</span>
           </div>
         </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Nova Doação
-        </Button>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{mockDonations.length}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pendentes</CardTitle>
-            <Package className="h-4 w-4 text-yellow-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {mockDonations.filter(d => d.status === 'pending').length}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Recebidas</CardTitle>
-            <Package className="h-4 w-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {mockDonations.filter(d => d.status === 'received').length}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Distribuídas</CardTitle>
-            <Package className="h-4 w-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {mockDonations.filter(d => d.status === 'distributed').length}
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Filtros</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4">
-            <div className="flex-1">
+      <Card className="border-0 shadow-md">
+        <CardContent className="p-4 sm:p-6">
+          <DonationFilters
+            filters={filters}
+            onFiltersChange={setFilters}
+            onCreateNew={handleCreateNew}
+            isLoading={isLoading}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Content */}
+      {isLoading ? (
+        <Card className="border-0 shadow-md">
+          <CardContent className="py-16">
+            <div className="flex flex-col items-center justify-center space-y-4">
               <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar por doador ou descrição..."
-                  value={filters.search || ''}
-                  onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                  className="pl-10"
-                />
+                <Loader2 className="h-12 w-12 animate-spin text-pink-600" />
+                <div className="absolute inset-0 h-12 w-12 rounded-full border-4 border-pink-100"></div>
+              </div>
+              <div className="text-center">
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  Carregando doações...
+                </h3>
+                <p className="text-gray-500">
+                  Aguarde enquanto buscamos os dados mais recentes
+                </p>
               </div>
             </div>
-            
-            <Select 
-              value={filters.status || 'all'} 
-              onValueChange={(value) => setFilters(prev => ({ ...prev, status: value === 'all' ? undefined : value }))}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os status</SelectItem>
-                <SelectItem value="pending">Pendente</SelectItem>
-                <SelectItem value="received">Recebida</SelectItem>
-                <SelectItem value="distributed">Distribuída</SelectItem>
-                <SelectItem value="expired">Expirada</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select 
-              value={filters.categoryId || 'all'} 
-              onValueChange={(value) => setFilters(prev => ({ ...prev, categoryId: value === 'all' ? undefined : value }))}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Categoria" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas as categorias</SelectItem>
-                {mockCategories.map((category) => (
-                  <SelectItem key={category._id} value={category._id}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          </CardContent>
+        </Card>
+      ) : donations.length === 0 ? (
+        <Card className="border-0 shadow-md">
+          <CardContent className="py-16">
+            <div className="text-center space-y-4">
+              <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center">
+                <Package className="h-12 w-12 text-gray-400" />
+              </div>
+              <div>
+                <h3 className="text-xl font-medium text-gray-900 mb-2">
+                  {filters.search || filters.status || filters.categoryId
+                    ? 'Nenhuma doação encontrada'
+                    : 'Nenhuma doação cadastrada ainda'}
+                </h3>
+                <p className="text-gray-500 mb-6 max-w-md mx-auto">
+                  {filters.search || filters.status || filters.categoryId
+                    ? 'Tente ajustar os filtros para encontrar o que procura ou adicione uma nova doação.'
+                    : 'Comece adicionando a primeira doação para dar início ao seu trabalho de ajuda.'}
+                </p>
+                <Button onClick={handleCreateNew} size="lg" className="bg-pink-600 hover:bg-pink-700">
+                  <Package className="h-5 w-5 mr-2" />
+                  {filters.search || filters.status || filters.categoryId ? 'Nova Doação' : 'Criar Primeira Doação'}
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4 sm:space-y-6">
+          {/* Results Summary */}
+          <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
+                <span className="text-sm font-medium text-gray-600">
+                  Mostrando {donations.length} doações
+                </span>
+                {filters.search && (
+                  <span className="text-xs sm:text-sm text-gray-500">
+                    para "{filters.search}"
+                  </span>
+                )}
+              </div>
+              <div className="text-xs sm:text-sm text-gray-500">
+                Página {currentPage} de {totalPages}
+              </div>
+            </div>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Doações ({filteredDonations.length})</CardTitle>
-          <CardDescription>
-            Lista completa de todas as doações
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Doador</TableHead>
-                <TableHead>Categoria</TableHead>
-                <TableHead>Quantidade</TableHead>
-                <TableHead>Valor</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Data</TableHead>
-                <TableHead>Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredDonations.map((donation) => (
-                <TableRow key={donation._id}>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{donation.donorName}</p>
-                      <p className="text-sm text-muted-foreground">{donation.donorContact}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>{getCategoryName(donation.categoryId as string)}</TableCell>
-                  <TableCell>
-                    {donation.quantity} {donation.unit}
-                  </TableCell>
-                  <TableCell>
-                    {donation.estimatedValue ? formatCurrency(donation.estimatedValue) : '-'}
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={statusConfig[donation.status].color}>
-                      {statusConfig[donation.status].label}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{formatDate(donation.receivedDate)}</TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
+          {/* Donations Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {donations.map((donation) => (
+              <div key={donation._id} className="min-w-0">
+                <DonationCard
+                  donation={donation}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onStatusChange={handleStatusChange}
+                  onManageDistributions={handleManageDistributions}
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <Card className="border-0 shadow-sm">
+              <CardContent className="p-4">
+                <div className="flex justify-center space-x-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="px-4"
+                  >
+                    Anterior
+                  </Button>
+                  
+                  <div className="flex items-center space-x-1">
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      const page = i + 1;
+                      return (
+                        <Button
+                          key={page}
+                          variant={currentPage === page ? "default" : "outline"}
+                          onClick={() => handlePageChange(page)}
+                          className="w-10 h-10 p-0"
+                        >
+                          {page}
                         </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                          <Eye className="mr-2 h-4 w-4" />
-                          Visualizar
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Editar
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600">
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Excluir
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                      );
+                    })}
+                  </div>
+                  
+                  <Button
+                    variant="outline"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="px-4"
+                  >
+                    Próxima
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
 
-      {/* Create Donation Dialog */}
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Nova Doação</DialogTitle>
-            <DialogDescription>
-              Registre uma nova doação no sistema
-            </DialogDescription>
-          </DialogHeader>
+      {/* Form Dialog */}
+      <DonationFormDialog
+        open={isFormOpen}
+        onOpenChange={setIsFormOpen}
+        donation={editingDonation}
+        onSubmit={handleFormSubmit}
+        isLoading={createDonation.isPending || updateDonation.isPending}
+      />
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleCreateDonation)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="donorName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nome do Doador</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Nome completo" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="donorContact"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Contato</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Telefone ou e-mail" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="categoryId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Categoria</FormLabel>
-                      <Select onValueChange={(value) => {
-                        field.onChange(value);
-                        handleCategoryChange(value);
-                      }}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione uma categoria" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {mockCategories.map((category) => (
-                            <SelectItem key={category._id} value={category._id}>
-                              {category.icon} {category.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="receivedDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Data de Recebimento</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <FormField
-                  control={form.control}
-                  name="quantity"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Quantidade</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          placeholder="0" 
-                          {...field}
-                          onChange={(e) => field.onChange(Number(e.target.value))}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="unit"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Unidade</FormLabel>
-                      <FormControl>
-                        <Input placeholder="kg, peças..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="estimatedValue"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Valor Estimado (R$)</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          step="0.01" 
-                          placeholder="0,00" 
-                          {...field}
-                          onChange={(e) => field.onChange(Number(e.target.value))}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Descrição</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Descreva os itens doados..." {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="notes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Observações</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Observações adicionais..." {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="flex justify-end gap-4">
-                <Button 
-                  type="button" 
-                  variant="outline"
-                  onClick={() => setIsCreateDialogOpen(false)}
-                >
-                  Cancelar
-                </Button>
-                <Button 
-                  type="submit" 
-                  disabled={createDonationMutation.isPending}
-                >
-                  {createDonationMutation.isPending ? 'Salvando...' : 'Salvar Doação'}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
+      {/* Distribution Management Dialog */}
+      {selectedDonation && (
+        <DistributionManagementDialog
+          open={isDistributionOpen}
+          onOpenChange={setIsDistributionOpen}
+          donation={selectedDonation}
+        />
+      )}
     </div>
   );
 }

@@ -12,3 +12,12 @@ export type { DonorAnalytics, GetDonorAnalyticsParams } from './getDonorAnalytic
 
 export { getEfficiencyMetrics } from './getEfficiencyMetrics';
 export type { EfficiencyMetrics } from './getEfficiencyMetrics';
+
+export { getExecutiveSummary } from './getExecutiveSummary';
+export type { ExecutiveSummary, GetExecutiveSummaryParams } from './getExecutiveSummary';
+
+export { getSystemAlerts } from './getSystemAlerts';
+export type { SystemAlert } from './getSystemAlerts';
+
+export { getWidgetMetrics } from './getWidgetMetrics';
+export type { WidgetMetric, GetWidgetMetricsParams } from './getWidgetMetrics';
