@@ -45,16 +45,9 @@ export function DonationFilters({
   // Debounce do valor de busca
   const debouncedSearchValue = useDebouncedValue(searchValue, 500);
 
-  console.log('🏷️ Categories response:', categoriesResponse);
-  console.log('🏷️ Processed categories:', categories);
-  console.log('🔍 Current filters:', filters);
-  console.log('🔍 Search value:', searchValue);
-  console.log('🔍 Debounced search value:', debouncedSearchValue);
-
   // Atualizar filtros quando o valor de busca debounced mudar
   useEffect(() => {
     if (debouncedSearchValue !== filters.search) {
-      console.log('🔍 Updating search filter:', debouncedSearchValue);
       const newFilters = { 
         page: 1,
         limit: filters.limit || 12,
@@ -67,12 +60,10 @@ export function DonationFilters({
   }, [debouncedSearchValue]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSearchChange = (search: string) => {
-    console.log('🔍 Search input changed:', search);
     setSearchValue(search);
   };
 
   const handleStatusChange = (status: string) => {
-    console.log('📋 Status changed:', status);
     onFiltersChange({ 
       ...filters, 
       status: status === 'all' ? undefined : status as 'pending' | 'received' | 'distributed' | 'expired',
@@ -81,13 +72,11 @@ export function DonationFilters({
   };
 
   const handleCategoryChange = (categoryId: string) => {
-    console.log('📂 Category changed:', categoryId);
     const newFilters = { 
       ...filters, 
       categoryId: categoryId === 'all' ? undefined : categoryId, 
       page: 1 
     };
-    console.log('📂 New filters after category change:', newFilters);
     onFiltersChange(newFilters);
   };
 

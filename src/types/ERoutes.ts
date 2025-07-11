@@ -9,6 +9,11 @@ export const ERoutes = {
   FamiliasEditar: '/familias/editar',
   VoluntariosEdicao: '/voluntarios/edicao',
   VoluntariosCadastro: '/voluntarios/cadastro',
+  // Rotas de Eventos
+  EventosLista: '/eventos',
+  EventosCriar: '/eventos/criar',
+  EventosEditar: '/eventos/editar',
+  EventosDetalhes: '/eventos/detalhes',
   // Rotas de Doações
   DoacoesLista: '/doacoes/lista',
   DoacoesCriar: '/doacoes/criar',

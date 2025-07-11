@@ -59,10 +59,6 @@ export function DistributionManagementDialog({ open, onOpenChange, donation }: D
       familyId: selectedFamily._id,
     };
 
-    console.log('Payload enviado:', payload);
-    console.log('Donation ID:', donation._id);
-    console.log('Family ID:', selectedFamily._id);
-
     try {
       await createDistribution.mutateAsync(payload);
 

@@ -31,19 +31,9 @@ export default function AdminDoacoes() {
   const deleteDonation = useDeleteDonation();
   const updateStatus = useUpdateDonationStatus();
 
-  // Debug logs
-  console.log('🔍 Current filters in AdminDoacoes:', filters);
-  console.log('📦 Donations Response:', donationsResponse);
-  console.log('⏳ Loading state:', isLoading);
-  console.log('❌ Error state:', error);
-
   const donations = Array.isArray(donationsResponse?.data?.data) ? donationsResponse.data.data : [];
   const totalPages = donationsResponse?.data?.totalPages || 1;
   const currentPage = donationsResponse?.data?.currentPage || 1;
-
-  console.log('Processed donations:', donations);
-  console.log('Total pages:', totalPages);
-  console.log('Current page:', currentPage);
 
   const handleCreateNew = () => {
     setEditingDonation(undefined);

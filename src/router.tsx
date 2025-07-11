@@ -13,6 +13,9 @@ const Login = lazy(() => import('@/pages/(public)/Login/Login'));
 // Private pages
 const Home = lazy(() => import('@/pages/(private)/Home/Home'));
 const Eventos = lazy(() => import('@/pages/(private)/Eventos/Eventos'));
+const EventosCriar = lazy(() => import('@/pages/(private)/Eventos/Criar/Criar'));
+const EventosEditar = lazy(() => import('@/pages/(private)/Eventos/Editar/Editar'));
+const EventosDetalhes = lazy(() => import('@/pages/(private)/Eventos/Detalhes/Detalhes'));
 const Familias = lazy(() => import('@/pages/(private)/Familias/Familias'));
 const FamiliasCreate = lazy(() => import('@/pages/(private)/Familias/Criar/Criar'));
 const FamiliasEdit = lazy(() => import('@/pages/(private)/Familias/Editar/Editar'));
@@ -60,6 +63,9 @@ export default function AppRouter() {
         >
           <Route path={ERoutes.Inicio} element={<Home />} />
           <Route path={ERoutes.Eventos} element={<Eventos />} />
+          <Route path={ERoutes.EventosCriar} element={<EventosCriar />} />
+          <Route path={`${ERoutes.EventosEditar}/:id`} element={<EventosEditar />} />
+          <Route path={`${ERoutes.EventosDetalhes}/:id`} element={<EventosDetalhes />} />
 
           {/* Voluntários routes */}
           <Route path={ERoutes.Voluntarios} element={<VoluntariosList />} />

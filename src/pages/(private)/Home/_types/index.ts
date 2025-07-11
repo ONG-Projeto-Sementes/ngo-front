@@ -6,9 +6,7 @@ export interface EventListRootProps {
 
 export interface EventListItemProps {
 	_id: string;
-	imageUrl: string;
+	imageUrl?: string;
 	title: string;
 	date: string;
 }
-
-export interface EventResponse extends EventListItemProps {}

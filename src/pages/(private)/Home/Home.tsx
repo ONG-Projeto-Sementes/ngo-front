@@ -27,10 +27,15 @@ export default function Home() {
 							<List.Skeleton />
 							<List.Skeleton />
 						</>
-					) : (
-						data?.map((item, index) => (
+					) : data && data.length > 0 ? (
+						data.map((item, index) => (
 							<List.Item key={index} imageUrl={item.imageUrl} title={item.title} date={item.date} _id={item._id}/>
 						))
+					) : (
+						<div className="col-span-full text-center py-8">
+							<p className="text-gray-500">Nenhum evento encontrado ainda.</p>
+							<p className="text-sm text-gray-400 mt-2">Os eventos criados aparecerão aqui.</p>
+						</div>
 					)}
 				</List.Root>
 			</div>
