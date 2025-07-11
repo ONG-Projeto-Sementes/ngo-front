@@ -1,10 +1,10 @@
 import useQuery from '@/hooks/useQuery';
-import { getFamilies, type FamilyDTO } from '@/services/families/getFamilies';
+import { getFamilies, type FamiliesResponse } from '@/services/families/getFamilies';
 
 export default function useGetFamilies(page: number, debouncedSearch: string) {
-  return useQuery<FamilyDTO[]>({
+  return useQuery<FamiliesResponse>({
     queryKey: ['families', page, debouncedSearch],
-    service: getFamilies,
+    service: () => getFamilies(page, debouncedSearch),
     refetchInterval: 30_000,
     autoStart: true,
   });

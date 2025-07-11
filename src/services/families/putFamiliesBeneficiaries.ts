@@ -27,10 +27,11 @@ export async function putFamiliesBeneficiaries(
   payload: BeneficiaryEditPayload
 ): Promise<BeneficiaryEditResponse> {
   try {
-    return await apiClient.put<BeneficiaryEditResponse, BeneficiaryEditPayload>(
+    const response = await apiClient.put<{ message: string; data: BeneficiaryEditResponse }, BeneficiaryEditPayload>(
       `/beneficiaries/${beneficiaryId}`,
       payload
     );
+    return response.data;
   } catch (err) {
     const axiosErr = err as RequestError<{ message?: string }>;
     if (axiosErr.response?.data?.message) {

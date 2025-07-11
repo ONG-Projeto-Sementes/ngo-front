@@ -26,10 +26,11 @@ export async function putFamilies(
   payload: FamilyPayload
 ): Promise<FamilyResponse> {
   try {
-    return await apiClient.put<FamilyResponse, FamilyPayload>(
+    const response = await apiClient.put<{ message: string; data: FamilyResponse }, FamilyPayload>(
       `/families/${id}`,
       payload
     );
+    return response.data;
   } catch (err) {
     const axiosErr = err as RequestError<{ message?: string }>;
     if (axiosErr.response?.data?.message) {

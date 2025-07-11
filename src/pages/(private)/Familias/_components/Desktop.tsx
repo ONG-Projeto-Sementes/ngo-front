@@ -40,18 +40,25 @@ export default function Desktop({ families, isLoading, isDeleting, remove }: Des
               ))
             : families.map((fam) => (
                 <TableRow key={fam._id}>
-                  <TableCell className="px-4">{fam.name}</TableCell>
+                  <TableCell className="px-4 font-medium">{fam.name}</TableCell>
                   <TableCell className="px-4">{fam.city}</TableCell>
                   <TableCell className="px-4">{fam.neighborhood}</TableCell>
-                  <TableCell className="px-4">{fam.address}</TableCell>
-                  <TableCell className="px-4">{fam.contact}</TableCell>
+                  <TableCell className="px-4">{fam.address || '-'}</TableCell>
+                  <TableCell className="px-4">{fam.contact || '-'}</TableCell>
                   <TableCell className="px-4 text-center">
                     <div className="flex items-center justify-center gap-2">
-                      <Link to={`${ERoutes.FamiliasEditar}/${fam._id}`}>
-                        <Eye className="w-5 h-5 text-primary hover:text-primary-dark" />
+                      <Link 
+                        to={`${ERoutes.FamiliasEditar}/${fam._id}`}
+                        className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                      >
+                        <Eye className="w-4 h-4" />
                       </Link>
-                      <button onClick={() => remove(fam._id)} disabled={isDeleting}>
-                        <Trash className="w-5 h-5 text-red-600 hover:text-red-800" />
+                      <button 
+                        onClick={() => remove(fam._id)} 
+                        disabled={isDeleting}
+                        className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors disabled:opacity-50"
+                      >
+                        <Trash className="w-4 h-4" />
                       </button>
                     </div>
                   </TableCell>

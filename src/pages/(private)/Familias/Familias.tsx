@@ -15,10 +15,11 @@ export default function FamiliesPage() {
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebouncedValue(search, 300);
 
-  const { data: families = [], isLoading, isError, error, refetch } = useGetFamilies(page, debouncedSearch);
+  const { data: familiesResponse, isLoading, isError, error, refetch } = useGetFamilies(page, debouncedSearch);
   const { mutate: remove, isPending: isDeleting } = useDeleteFamily(() => refetch());
 
-  const totalPages = Math.ceil(families.length / 10);
+  const families = familiesResponse?.data || [];
+  const totalPages = familiesResponse?.totalPages || 1;
 
   return (
     <div className="p-4">

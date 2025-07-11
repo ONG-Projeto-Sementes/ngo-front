@@ -1,5 +1,8 @@
-import { User, Calendar, Users, Phone } from 'lucide-react';
+import { User, Calendar, Users, Phone, Edit, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 import useGetBeneficiaries from '../_hooks/useGetBeneficiaries';
+import useDeleteBeneficiary from '../_hooks/useDeleteBeneficiary';
 
 interface Props {
   familyId: string;
@@ -7,6 +10,13 @@ interface Props {
 
 export default function BeneficiaryList({ familyId }: Props) {
   const { data: beneficiaries, isLoading, isError, error } = useGetBeneficiaries(familyId);
+  const { mutate: deleteBeneficiary, isPending: isDeleting } = useDeleteBeneficiary(familyId);
+
+  const handleDelete = (beneficiaryId: string, beneficiaryName: string) => {
+    if (confirm(`Tem certeza que deseja excluir o beneficiário "${beneficiaryName}"?`)) {
+      deleteBeneficiary(beneficiaryId);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -67,8 +77,31 @@ export default function BeneficiaryList({ familyId }: Props) {
                     {beneficiary.degreeOfKinship}
                   </span>
                   <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
-                    {beneficiary.genre}
+                    {beneficiary.genre === 'M' ? 'Masculino' : beneficiary.genre === 'F' ? 'Feminino' : 'Outro'}
                   </span>
+                </div>
+
+                {/* Ações */}
+                <div className="flex gap-2 pt-3 border-t border-gray-200 mt-3">
+                  <Link
+                    to={`/familias/${familyId}/beneficiarios/${beneficiary._id}/editar`}
+                    className="flex-1"
+                  >
+                    <Button variant="outline" size="sm" className="w-full">
+                      <Edit className="h-3 w-3 mr-1" />
+                      Editar
+                    </Button>
+                  </Link>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDelete(beneficiary._id, beneficiary.name)}
+                    disabled={isDeleting}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <Trash2 className="h-3 w-3 mr-1" />
+                    Excluir
+                  </Button>
                 </div>
               </div>
             </div>

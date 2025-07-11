@@ -2,11 +2,21 @@ import { z } from 'zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Form } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import InputField from '@/components/InputField/InputField';
 import useEditBeneficiary from '../_hooks/useEditBeneficiary';
+
+// Função para formatar CPF
+const formatCPF = (value: string) => {
+  const numbers = value.replace(/\D/g, '');
+  if (numbers.length <= 11) {
+    return numbers.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  }
+  return value;
+};
 
 const beneficiarySchema = z.object({
   name: z.string().nonempty('Nome é obrigatório'),
@@ -39,12 +49,15 @@ export default function EditBeneficiaryForm({ familyId, beneficiaryId }: Props) 
 
   // Popula o formulário quando os dados chegarem
   useEffect(() => {
-    if (!data) return;
-    form.setValue('name', data.name);
-    form.setValue('birthDate', data.birthDate.split('T')[0]); // Formata para yyyy-mm-dd
-    form.setValue('degreeOfKinship', data.degreeOfKinship);
-    form.setValue('genre', data.genre);
-    form.setValue('cpf', data.cpf);
+    if (data) {
+      form.reset({
+        name: data.name || '',
+        birthDate: data.birthDate ? data.birthDate.split('T')[0] : '', // Formata para yyyy-mm-dd
+        degreeOfKinship: data.degreeOfKinship || '',
+        genre: data.genre || '',
+        cpf: data.cpf || '',
+      });
+    }
   }, [data, form]);
 
   const onSubmit = (values: FormValues) => {
@@ -75,57 +88,75 @@ export default function EditBeneficiaryForm({ familyId, beneficiaryId }: Props) 
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Nome */}
-            <div className="space-y-1">
-              <Label htmlFor="name">Nome *</Label>
-              <Input id="name" {...form.register('name')} placeholder="Nome completo" />
-              {form.formState.errors.name && (
-                <p className="text-red-600 text-sm">{form.formState.errors.name.message}</p>
-              )}
-            </div>
+            <InputField
+              name="name"
+              label="Nome *"
+              control={form.control}
+              placeholder="Nome completo"
+            />
 
             {/* CPF */}
-            <div className="space-y-1">
-              <Label htmlFor="cpf">CPF *</Label>
-              <Input id="cpf" {...form.register('cpf')} placeholder="123.456.789-00" />
-              {form.formState.errors.cpf && (
-                <p className="text-red-600 text-sm">{form.formState.errors.cpf.message}</p>
+            <FormField
+              control={form.control}
+              name="cpf"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>CPF *</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="000.000.000-00" 
+                      {...field}
+                      onChange={(e) => {
+                        const formatted = formatCPF(e.target.value);
+                        field.onChange(formatted);
+                      }}
+                      maxLength={14}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
+            />
 
             {/* Data de Nascimento */}
-            <div className="space-y-1">
-              <Label htmlFor="birthDate">Data de Nascimento *</Label>
-              <Input id="birthDate" type="date" {...form.register('birthDate')} />
-              {form.formState.errors.birthDate && (
-                <p className="text-red-600 text-sm">{form.formState.errors.birthDate.message}</p>
-              )}
-            </div>
+            <InputField
+              name="birthDate"
+              label="Data de Nascimento *"
+              type="date"
+              control={form.control}
+            />
 
             {/* Grau de Parentesco */}
-            <div className="space-y-1">
-              <Label htmlFor="degreeOfKinship">Grau de Parentesco *</Label>
-              <Input 
-                id="degreeOfKinship" 
-                {...form.register('degreeOfKinship')} 
-                placeholder="Ex: Filho(a), Pai, Mãe, etc." 
-              />
-              {form.formState.errors.degreeOfKinship && (
-                <p className="text-red-600 text-sm">{form.formState.errors.degreeOfKinship.message}</p>
-              )}
-            </div>
+            <InputField
+              name="degreeOfKinship"
+              label="Grau de Parentesco *"
+              control={form.control}
+              placeholder="Ex: Filho(a), Pai, Mãe, etc."
+            />
 
             {/* Gênero */}
-            <div className="space-y-1">
-              <Label htmlFor="genre">Gênero *</Label>
-              <Input 
-                id="genre" 
-                {...form.register('genre')} 
-                placeholder="Masculino, Feminino, Outro" 
-              />
-              {form.formState.errors.genre && (
-                <p className="text-red-600 text-sm">{form.formState.errors.genre.message}</p>
+            <FormField
+              control={form.control}
+              name="genre"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Gênero *</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o gênero" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="M">Masculino</SelectItem>
+                      <SelectItem value="F">Feminino</SelectItem>
+                      <SelectItem value="O">Outro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
+            />
 
             {/* Botão */}
             <div className="flex items-end">

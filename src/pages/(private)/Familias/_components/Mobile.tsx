@@ -37,21 +37,41 @@ export default function Mobile({ families, isLoading, isDeleting, remove }: Mobi
           <CardHeader>
             <h5 className="font-medium">{fam.name}</h5>
           </CardHeader>
-          <CardContent className="text-sm space-y-1">
+          <CardContent className="text-sm space-y-2">
             <p>
               <strong>Cidade:</strong> {fam.city}
             </p>
             <p>
               <strong>Bairro:</strong> {fam.neighborhood}
             </p>
-            <p className="flex gap-2">
-              <Link to={`${ERoutes.FamiliasEditar}/${fam._id}`}>
-                <Eye />
-              </Link>
-              <button onClick={() => remove(fam._id)} disabled={isDeleting}>
-                <Trash />
-              </button>
+            {fam.address && (
+              <p>
+                <strong>Endereço:</strong> {fam.address}
+              </p>
+            )}
+            {fam.contact && (
+              <p>
+                <strong>Contato:</strong> {fam.contact}
+              </p>
+            )}
+            <p>
+              <strong>Criado em:</strong> {new Date(fam.createdAt).toLocaleDateString('pt-BR')}
             </p>
+            <div className="flex gap-2 pt-2">
+              <Link 
+                to={`${ERoutes.FamiliasEditar}/${fam._id}`}
+                className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+              >
+                <Eye className="h-4 w-4" />
+              </Link>
+              <button 
+                onClick={() => remove(fam._id)} 
+                disabled={isDeleting}
+                className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors disabled:opacity-50"
+              >
+                <Trash className="h-4 w-4" />
+              </button>
+            </div>
           </CardContent>
         </Card>
       ))}

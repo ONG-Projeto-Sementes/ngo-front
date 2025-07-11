@@ -23,7 +23,8 @@ export interface FamilyResponse {
 
 export async function postFamilies(payload: FamilyPayload): Promise<FamilyResponse> {
   try {
-    return await apiClient.post<FamilyResponse, FamilyPayload>('/families', payload);
+    const response = await apiClient.post<{ message: string; data: FamilyResponse }, FamilyPayload>('/families', payload);
+    return response.data;
   } catch (err) {
     const axiosErr = err as RequestError<{ message?: string }>;
     if (axiosErr.response?.data?.message) {

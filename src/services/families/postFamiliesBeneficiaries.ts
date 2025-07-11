@@ -27,10 +27,11 @@ export async function postFamiliesBeneficiaries(
   payload: BeneficiaryPayload
 ): Promise<BeneficiaryResponse> {
   try {
-    return await apiClient.post<BeneficiaryResponse, BeneficiaryPayload>(
+    const response = await apiClient.post<{ message: string; data: BeneficiaryResponse }, BeneficiaryPayload>(
       `/families/${familyId}/beneficiaries`,
       payload
     );
+    return response.data;
   } catch (err) {
     const axiosErr = err as RequestError<{ message?: string }>;
     if (axiosErr.response?.data?.message) {

@@ -1,9 +1,8 @@
 import { Form } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import InputField from '@/components/InputField/InputField';
 import useRegisterFamily from '../_hooks/useRegisterFamily';
 import { familySchema, type FamilyFormValues } from '../_schemas/familySchema';
 
@@ -29,48 +28,44 @@ export default function RegisterForm() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-4">
         <div className="flex flex-col lg:flex-row gap-4">
-          {/* CARD MAIOR: campos de texto em grid */}
-          <div className="flex-1 bg-white border border-gray-200 rounded-lg p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Nome */}
-            <div className="space-y-1">
-              <Label htmlFor="name">Nome *</Label>
-              <Input id="name" {...form.register('name')} placeholder="Família Silva" />
-              {form.formState.errors.name && (
-                <p className="text-red-600 text-sm">{form.formState.errors.name.message}</p>
-              )}
+          {/* CARD MAIOR: campos de texto */}
+          <div className="flex-1 bg-white border border-gray-200 rounded-lg p-6 space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <InputField
+                name="name"
+                label="Nome *"
+                control={form.control}
+                placeholder="Nome da família"
+              />
+              
+              <InputField
+                name="city"
+                label="Cidade *"
+                control={form.control}
+                placeholder="Rio de Janeiro"
+              />
+              
+              <InputField
+                name="neighborhood"
+                label="Bairro *"
+                control={form.control}
+                placeholder="Copacabana"
+              />
+              
+              <InputField
+                name="address"
+                label="Endereço *"
+                control={form.control}
+                placeholder="Av. Atlântica, 456"
+              />
             </div>
-            {/* Cidade */}
-            <div className="space-y-1">
-              <Label htmlFor="city">Cidade *</Label>
-              <Input id="city" {...form.register('city')} placeholder="Rio de Janeiro" />
-              {form.formState.errors.city && (
-                <p className="text-red-600 text-sm">{form.formState.errors.city.message}</p>
-              )}
-            </div>
-            {/* Bairro */}
-            <div className="space-y-1">
-              <Label htmlFor="neighborhood">Bairro *</Label>
-              <Input id="neighborhood" {...form.register('neighborhood')} placeholder="Copacabana" />
-              {form.formState.errors.neighborhood && (
-                <p className="text-red-600 text-sm">{form.formState.errors.neighborhood.message}</p>
-              )}
-            </div>
-            {/* Endereço */}
-            <div className="space-y-1">
-              <Label htmlFor="address">Endereço *</Label>
-              <Input id="address" {...form.register('address')} placeholder="Av. Atlântica, 456" />
-              {form.formState.errors.address && (
-                <p className="text-red-600 text-sm">{form.formState.errors.address.message}</p>
-              )}
-            </div>
-            {/* Contato */}
-            <div className="space-y-1 md:col-span-2">
-              <Label htmlFor="contact">Contato *</Label>
-              <Input id="contact" {...form.register('contact')} placeholder="21 98888‑8888" />
-              {form.formState.errors.contact && (
-                <p className="text-red-600 text-sm">{form.formState.errors.contact.message}</p>
-              )}
-            </div>
+            
+            <InputField
+              name="contact"
+              label="Contato *"
+              control={form.control}
+              placeholder="21 98888-8888"
+            />
           </div>
 
             {/* CARD PEQUENO: Botão Cadastrar */}

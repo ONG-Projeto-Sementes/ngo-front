@@ -18,9 +18,10 @@ export async function getFamiliesBeneficiaries(
   familyId: string
 ): Promise<BeneficiaryDTO[]> {
   try {
-    return await apiClient.get<BeneficiaryDTO[]>(
+    const response = await apiClient.get<{ message: string; data: BeneficiaryDTO[] }>(
       `/families/${familyId}/beneficiaries`
     );
+    return response.data; // Extrai o array de beneficiários do campo 'data'
   } catch (err) {
     const axiosErr = err as RequestError<{ message?: string }>;
     if (axiosErr.response?.data?.message) {

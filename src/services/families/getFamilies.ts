@@ -13,9 +13,24 @@ export interface FamilyDTO {
   updatedAt: string;
 }
 
-export async function getFamilies(): Promise<FamilyDTO[]> {
+export interface FamiliesResponse {
+  data: FamilyDTO[];
+  total: number;
+  totalPages: number;
+  currentPage: number;
+  limit: number;
+  message?: string;
+}
+
+export async function getFamilies(page: number = 1, search: string = ""): Promise<FamiliesResponse> {
   try {
-    return await apiClient.get<FamilyDTO[]>('/families');
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      limit: "10",
+      ...(search && { search })
+    });
+    
+    return await apiClient.get<FamiliesResponse>(`/families?${queryParams}`);
   } catch (err) {
     const axiosErr = err as RequestError<{ message?: string }>;
     if (axiosErr.response?.data?.message) {

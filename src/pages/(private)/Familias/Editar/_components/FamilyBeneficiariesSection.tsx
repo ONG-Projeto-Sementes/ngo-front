@@ -1,4 +1,4 @@
-import { User, Calendar, Phone, Eye, Trash2, Users } from 'lucide-react';
+import { User, Calendar, Phone, Edit, Trash2, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import useGetBeneficiaries from '../../Beneficiarios/_hooks/useGetBeneficiaries';
@@ -18,8 +18,10 @@ export default function FamilyBeneficiariesSection({ familyId }: Props) {
     navigate(`/familias/${familyId}/beneficiarios/${beneficiaryId}/editar`);
   };
 
-  const handleDeleteBeneficiary = (beneficiaryId: string) => {
-    deleteBeneficiary(beneficiaryId);
+  const handleDeleteBeneficiary = (beneficiaryId: string, beneficiaryName: string) => {
+    if (confirm(`Tem certeza que deseja excluir o beneficiário "${beneficiaryName}"?`)) {
+      deleteBeneficiary(beneficiaryId);
+    }
   };
 
   if (isLoading) {
@@ -67,32 +69,11 @@ export default function FamilyBeneficiariesSection({ familyId }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {beneficiaries.map((beneficiary) => (
             <div key={beneficiary._id} className="bg-gray-50 border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-              <div className="flex items-start justify-between mb-3">
+              <div className="mb-3">
                 <h4 className="font-medium flex items-center gap-2">
                   <User className="h-4 w-4" />
                   {beneficiary.name}
                 </h4>
-                <div className="flex gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0 text-blue-600 hover:text-blue-800 hover:bg-blue-50"
-                    onClick={() => handleEditBeneficiary(beneficiary._id)}
-                    title="Editar beneficiário"
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0 text-red-600 hover:text-red-800 hover:bg-red-50"
-                    onClick={() => handleDeleteBeneficiary(beneficiary._id)}
-                    disabled={isDeleting}
-                    title="Excluir beneficiário"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
               </div>
               
               <div className="space-y-2">
@@ -111,8 +92,31 @@ export default function FamilyBeneficiariesSection({ familyId }: Props) {
                     {beneficiary.degreeOfKinship}
                   </span>
                   <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
-                    {beneficiary.genre}
+                    {beneficiary.genre === 'M' ? 'Masculino' : beneficiary.genre === 'F' ? 'Feminino' : 'Outro'}
                   </span>
+                </div>
+
+                {/* Ações */}
+                <div className="flex gap-2 pt-3 border-t border-gray-200 mt-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => handleEditBeneficiary(beneficiary._id)}
+                  >
+                    <Edit className="h-3 w-3 mr-1" />
+                    Editar
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDeleteBeneficiary(beneficiary._id, beneficiary.name)}
+                    disabled={isDeleting}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <Trash2 className="h-3 w-3 mr-1" />
+                    Excluir
+                  </Button>
                 </div>
               </div>
             </div>
