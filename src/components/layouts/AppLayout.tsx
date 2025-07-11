@@ -14,6 +14,10 @@ const menuItems = [
     to: ERoutes.Inicio,
   },
   {
+    label: 'Doações',
+    to: ERoutes.Doacoes,
+  },
+  {
     label: 'Eventos',
     to: ERoutes.Eventos,
   },
@@ -24,10 +28,6 @@ const menuItems = [
   {
     label: 'Famílias',
     to: ERoutes.Familias,
-  },
-  {
-    label: 'Recebimentos',
-    to: ERoutes.Recebimentos,
   },
 ] as MenuItemsType[];
 

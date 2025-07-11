@@ -12,17 +12,22 @@ import { RequireAuth } from './components/RequireAuth/RequireAuth';
 const Login = lazy(() => import('@/pages/(public)/Login/Login'));
 // Private pages
 const Home = lazy(() => import('@/pages/(private)/Home/Home'));
-const Doacoes = lazy(() => import('@/pages/(private)/Doacoes/Doacoes'));
 const Eventos = lazy(() => import('@/pages/(private)/Eventos/Eventos'));
 const Familias = lazy(() => import('@/pages/(private)/Familias/Familias'));
 const FamiliasCreate = lazy(() => import('@/pages/(private)/Familias/Criar/Criar'));
 const FamiliasEdit = lazy(() => import('@/pages/(private)/Familias/Editar/Editar'));
 const FamiliasBeneficiarios = lazy(() => import('@/pages/(private)/Familias/Beneficiarios/Beneficiarios'));
 const FamiliasEditarBeneficiario = lazy(() => import('@/pages/(private)/Familias/EditarBeneficiario/EditarBeneficiario'));
-const Recebimentos = lazy(() => import('@/pages/(private)/Recebimentos/Recebimentos'));
 const VoluntariosList = lazy(() => import('@/pages/(private)/Voluntarios/Voluntarios'));
 const VoluntariosEdit = lazy(() => import('@/pages/(private)/Voluntarios/Edicao/Edicao'));
 const VoluntariosCreate = lazy(() => import('@/pages/(private)/Voluntarios/Cadastrar/Cadastrar'));
+
+// Donations pages
+const Doacoes = lazy(() => import('@/pages/(private)/Doacoes/index'));
+const DoacoesLista = lazy(() => import('@/pages/(private)/Doacoes/Lista/Lista'));
+const DoacoesCriar = lazy(() => import('@/pages/(private)/Doacoes/Criar/index'));
+const DoacoesCategorias = lazy(() => import('@/pages/(private)/Doacoes/Categorias/Categorias'));
+const DoacoesEstatisticas = lazy(() => import('@/pages/(private)/Doacoes/Estatisticas/Estatisticas'));
 
 export default function AppRouter() {
   return (
@@ -55,7 +60,6 @@ export default function AppRouter() {
           }
         >
           <Route path={ERoutes.Inicio} element={<Home />} />
-          <Route path={ERoutes.Doacoes} element={<Doacoes />} />
           <Route path={ERoutes.Eventos} element={<Eventos />} />
 
           {/* Voluntários routes */}
@@ -70,7 +74,14 @@ export default function AppRouter() {
           <Route path="/familias/:id/beneficiarios" element={<FamiliasBeneficiarios />} />
           <Route path="/familias/:familyId/beneficiarios/:beneficiaryId/editar" element={<FamiliasEditarBeneficiario />} />
 
-          <Route path={ERoutes.Recebimentos} element={<Recebimentos />} />
+
+          {/* Donations routes */}
+          <Route path={ERoutes.Doacoes} element={<Doacoes />} />
+          <Route path={ERoutes.DoacoesLista} element={<DoacoesLista />} />
+          <Route path={ERoutes.DoacoesCriar} element={<DoacoesCriar />} />
+          <Route path={`${ERoutes.DoacoesEditar}/:id`} element={<DoacoesCriar />} />
+          <Route path={ERoutes.DoacoesCategorias} element={<DoacoesCategorias />} />
+          <Route path={ERoutes.DoacoesEstatisticas} element={<DoacoesEstatisticas />} />
         </Route>
 
         {/* Fallback for unmatched */}

@@ -1,34 +1,29 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Package, DollarSign, Users, TrendingUp, Plus, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { ERoutes } from '@/types/ERoutes';
-import { useDonations } from './Lista/_hooks/useDonations';
-import { useDonationCategories } from './Categorias/_hooks/useDonationCategories';
 
 export default function Doacoes() {
   const navigate = useNavigate();
 
-  // Usar dados reais da API
-  const { data: donationsResponse, isLoading: donationsLoading } = useDonations({ limit: 5 });
-  const { data: categoriesResponse, isLoading: categoriesLoading } = useDonationCategories({ limit: 10 });
-
-  const donations = donationsResponse?.data?.data || [];
-  const categories = categoriesResponse?.data?.data || [];
-
-  // Calcular estatísticas a partir dos dados reais
+  // Mock data - em um caso real, isso viria dos hooks/APIs
   const stats = {
-    totalDonations: donationsResponse?.data?.total || 0,
-    totalValue: donations.reduce((sum, donation) => sum + (donation.estimatedValue || 0), 0),
-    totalDonors: new Set(donations.map(d => d.donorName)).size,
-    pendingCount: donations.filter(d => d.status === 'pending').length,
-    receivedCount: donations.filter(d => d.status === 'received').length,
-    distributedCount: donations.filter(d => d.status === 'distributed').length,
-    pendingValue: donations.filter(d => d.status === 'pending').reduce((sum, d) => sum + (d.estimatedValue || 0), 0),
-    receivedValue: donations.filter(d => d.status === 'received').reduce((sum, d) => sum + (d.estimatedValue || 0), 0),
-    distributedValue: donations.filter(d => d.status === 'distributed').reduce((sum, d) => sum + (d.estimatedValue || 0), 0),
+    totalDonations: 245,
+    totalValue: 45250.75,
+    totalDonors: 89,
+    pendingCount: 12,
+    receivedCount: 156,
+    distributedCount: 77,
+    pendingValue: 5200.30,
+    receivedValue: 28450.20,
+    distributedValue: 11600.25,
   };
+
+  const recentDonations = [
+    { id: '1', donorName: 'Maria Silva', description: 'Roupas infantis', value: 150.00, status: 'pending' },
+    { id: '2', donorName: 'João Santos', description: 'Alimentos não perecíveis', value: 89.50, status: 'received' },
+    { id: '3', donorName: 'Ana Costa', description: 'Brinquedos educativos', value: 245.00, status: 'distributed' },
+  ];
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -55,34 +50,6 @@ export default function Doacoes() {
     }
   };
 
-  if (donationsLoading || categoriesLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Doações</h1>
-            <p className="text-muted-foreground">
-              Carregando dados...
-            </p>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
-            <Card key={i}>
-              <CardHeader className="animate-pulse">
-                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-              </CardHeader>
-              <CardContent className="animate-pulse">
-                <div className="h-8 bg-gray-200 rounded w-1/2 mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -95,12 +62,12 @@ export default function Doacoes() {
         <div className="flex gap-2">
           <Button 
             variant="outline" 
-            onClick={() => navigate(ERoutes.DoacoesCategorias)}
+            onClick={() => navigate('/doacoes/categorias')}
           >
             <Settings className="h-4 w-4 mr-2" />
             Categorias
           </Button>
-          <Button onClick={() => navigate(ERoutes.DoacoesCriar)}>
+          <Button onClick={() => navigate('/doacoes/criar')}>
             <Plus className="h-4 w-4 mr-2" />
             Nova Doação
           </Button>
@@ -172,32 +139,26 @@ export default function Doacoes() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {donations.length > 0 ? donations.map((donation) => (
-              <div key={donation._id} className="flex items-center justify-between p-4 border rounded-lg">
+            {recentDonations.map((donation) => (
+              <div key={donation.id} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h4 className="font-medium">{donation.donorName}</h4>
-                    <Badge className={getStatusColor(donation.status)}>
-                      {getStatusLabel(donation.status)}
-                    </Badge>
-                  </div>
+                  <h4 className="font-medium">{donation.donorName}</h4>
                   <p className="text-sm text-muted-foreground">{donation.description}</p>
                 </div>
-                <div className="text-right">
-                  <div className="font-medium">{formatCurrency(donation.estimatedValue || 0)}</div>
+                <div className="text-right mr-4">
+                  <div className="font-medium">{formatCurrency(donation.value)}</div>
                 </div>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(donation.status)}`}>
+                  {getStatusLabel(donation.status)}
+                </span>
               </div>
-            )) : (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">Nenhuma doação encontrada</p>
-              </div>
-            )}
+            ))}
           </div>
           <div className="mt-4 pt-4 border-t">
             <Button 
               variant="outline" 
               className="w-full"
-              onClick={() => navigate(ERoutes.DoacoesLista)}
+              onClick={() => navigate('/doacoes/lista')}
             >
               Ver Todas as Doações
             </Button>
@@ -207,7 +168,7 @@ export default function Doacoes() {
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate(ERoutes.DoacoesCriar)}>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/doacoes/criar')}>
           <CardContent className="flex flex-col items-center justify-center p-6">
             <Plus className="h-8 w-8 text-primary mb-2" />
             <h3 className="font-medium mb-1">Registrar Doação</h3>
@@ -217,7 +178,7 @@ export default function Doacoes() {
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate(ERoutes.DoacoesLista)}>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/doacoes/lista')}>
           <CardContent className="flex flex-col items-center justify-center p-6">
             <Package className="h-8 w-8 text-primary mb-2" />
             <h3 className="font-medium mb-1">Gerenciar Doações</h3>
@@ -227,7 +188,7 @@ export default function Doacoes() {
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate(ERoutes.DoacoesCategorias)}>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/doacoes/categorias')}>
           <CardContent className="flex flex-col items-center justify-center p-6">
             <Settings className="h-8 w-8 text-primary mb-2" />
             <h3 className="font-medium mb-1">Configurar Categorias</h3>
