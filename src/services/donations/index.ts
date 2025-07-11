@@ -1,7 +1,11 @@
 export { getDonations } from './getDonations';
 export { getDonationById } from './getDonationById';
+export { getDonationsByCategory } from './getDonationsByCategory';
+export { getDonationsByStatus } from './getDonationsByStatus';
+export { createDonation } from './createDonation';
 export { postDonation } from './postDonation';
 export { putDonation } from './putDonation';
 export { patchDonationStatus } from './patchDonationStatus';
+export { deleteDonation } from './deleteDonation';
 export { getDonationStats } from './getDonationStats';
 export { getDonationStatsByCategory } from './getDonationStatsByCategory'; 

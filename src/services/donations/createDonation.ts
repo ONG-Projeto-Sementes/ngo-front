@@ -1,7 +1,16 @@
 import apiClient from '@/helpers/request';
-import type { DonationFormData, Donation } from '../../pages/(private)/Doacoes/_types/Donation';
+import type { RequestError } from '@/helpers/request';
+import type { Donation, DonationFormData } from '@/pages/(private)/Doacoes/_types/Donation';
 
 export async function createDonation(data: DonationFormData): Promise<Donation> {
-  const response = await apiClient.post('/donations', data) as { data: Donation };
-  return response.data;
+  try {
+    const response = await apiClient.post<{ message: string; data: Donation }, DonationFormData>('/donations', data);
+    return (response as { message: string; data: Donation }).data;
+  } catch (err) {
+    const axiosErr = err as RequestError<{ message?: string }>;
+    if (axiosErr.response?.data?.message) {
+      throw new Error(axiosErr.response.data.message);
+    }
+    throw err;
+  }
 }

@@ -1,21 +1,22 @@
 export interface Donation {
   _id: string;
   donorName: string;
-  donorContact: string;
-  categoryId: string;
-  category?: {
+  donorContact?: string;
+  categoryId: string | {
     _id: string;
     name: string;
     defaultUnit: string;
     color?: string;
     icon?: string;
+    description?: string;
   };
   quantity: number;
   unit: string;
-  description: string;
-  estimatedValue: number;
+  description?: string;
+  estimatedValue?: number;
   receivedDate: string;
-  status: 'pending' | 'received' | 'distributed';
+  status: 'pending' | 'received' | 'distributed' | 'expired';
+  images?: string[];
   notes?: string;
   deleted: boolean;
   createdAt: string;
@@ -24,14 +25,15 @@ export interface Donation {
 
 export interface DonationPayload {
   donorName: string;
-  donorContact: string;
+  donorContact?: string;
   categoryId: string;
   quantity: number;
   unit: string;
-  description: string;
-  estimatedValue: number;
-  receivedDate: string;
-  status: 'pending' | 'received' | 'distributed';
+  description?: string;
+  estimatedValue?: number;
+  receivedDate?: string;
+  status?: 'pending' | 'received' | 'distributed' | 'expired';
+  images?: string[];
   notes?: string;
 }
 
@@ -86,13 +88,14 @@ export interface GetDonationsParams {
 
 export interface DonationFormData {
   donorName: string;
-  donorContact: string;
+  donorContact?: string;
   categoryId: string;
-  status: 'pending' | 'received' | 'distributed';
+  status?: 'pending' | 'received' | 'distributed' | 'expired';
   quantity: number;
   unit: string;
-  estimatedValue: number;
-  receivedDate: string;
-  description: string;
+  estimatedValue?: number;
+  receivedDate?: string;
+  description?: string;
+  images?: string[];
   notes?: string;
 }
