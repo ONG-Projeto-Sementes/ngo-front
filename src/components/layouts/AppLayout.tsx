@@ -1,11 +1,11 @@
-import { Suspense, useState } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { Menu, LogOut } from 'lucide-react';
 import type { MenuItemsType } from './_types';
+import type { ReactNode } from 'react';
 import { ERoutes } from '../../types/ERoutes';
 import { Link, Outlet } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { List } from './_components/DropdownList';
-import { useEffect, type ReactNode } from 'react';
 import { useAuth } from '../../context/AuthContext';
 
 const menuItems = [
